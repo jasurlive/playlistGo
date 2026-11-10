@@ -286,18 +286,13 @@
   color: var(--muted);
 }
 
+/* chips wrap onto new lines: no sideways scrolling */
 .moods {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   padding: 0 10px 12px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  overscroll-behavior-x: contain;
   animation: fade-down 0.18s ease-out;
-}
-
-.moods::-webkit-scrollbar {
-  display: none;
 }
 
 @keyframes fade-down {
@@ -316,6 +311,11 @@
 .mood-new-row {
   display: flex;
   gap: 0.5rem;
+  min-width: 0;
+}
+
+.mood-new-row .btn {
+  flex-shrink: 0;
 }
 
 /* ---------- queue page ---------- */
