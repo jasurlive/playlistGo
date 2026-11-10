@@ -40,18 +40,15 @@
   line-height: 1.1;
   text-transform: uppercase;
   white-space: nowrap;
-  color: var(--muted);
-  opacity: 0.4;
-  transition: opacity 0.2s, color 0.2s;
+  /* --on: 0 = far away, 1 = the page on screen; set live while swiping (Library syncTabs) */
+  color: color-mix(in srgb, var(--text-strong) calc(var(--on, 0) * 100%), var(--muted));
+  opacity: calc(0.4 + 0.6 * var(--on, 0));
 }
 
-.lib-tab:hover {
-  opacity: 0.75;
-}
-
-.lib-tab.is-active {
-  color: var(--text-strong);
-  opacity: 1;
+@media (hover: hover) {
+  .lib-tab:not(.is-active):hover {
+    opacity: 0.75;
+  }
 }
 
 .lib-tab-emoji {

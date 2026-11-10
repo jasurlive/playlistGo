@@ -4,6 +4,8 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiList,
+  FiMaximize,
+  FiMinimize,
   FiMusic,
   FiSearch,
   FiSettings,
@@ -12,6 +14,7 @@ import {
 import "../css/menu.css";
 import { useTheme } from "../hooks/LOCAL/useTheme";
 import { useShortcuts } from "../hooks/LOCAL/useShortcuts";
+import { useFullscreen } from "../hooks/LOCAL/useFullscreen";
 import { THEME_ICONS } from "./ThemeIcons";
 import { THEME_LABELS } from "../lib/themes";
 
@@ -42,6 +45,7 @@ const ITEMS: MenuItem[] = [
 export default function Menu() {
   const { nextTheme, toggleTheme } = useTheme();
   const { pathname } = useLocation();
+  const { supported: canFullscreen, isFullscreen, toggleFullscreen } = useFullscreen();
 
   useShortcuts({ "ctrl+j": toggleTheme });
 
@@ -56,6 +60,16 @@ export default function Menu() {
 
   const menuItems: MenuItem[] = [
     ...ITEMS,
+    // desktop only (sidebar bottom): whole page fullscreen, also in settings
+    ...(canFullscreen
+      ? [
+          {
+            label: isFullscreen ? "Exit full screen" : "Full screen",
+            icon: isFullscreen ? <FiMinimize /> : <FiMaximize />,
+            onClick: toggleFullscreen,
+          },
+        ]
+      : []),
     {
       // shows the theme you'll switch to (ctrl+j cycles too)
       label: `${THEME_LABELS[nextTheme]} theme`,

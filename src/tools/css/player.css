@@ -182,6 +182,11 @@
   font-size: 1.4rem;
 }
 
+.fp-top-spacer {
+  flex-shrink: 0;
+  width: 44px; /* same as the close button */
+}
+
 .fp-from {
   display: flex;
   flex-direction: column;
@@ -223,6 +228,92 @@
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+/* ---------- video full screen (laptop): same box, stretched over the whole screen ---------- */
+/* the iframe stays where it is in the dom, so song changes never drop out of this mode */
+
+.fp.is-video-full .fp-video {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  width: 100vw;
+  height: 100dvh;
+  aspect-ratio: auto;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.fp-video.is-idle,
+.fp-video.is-idle .fp-video-shield {
+  cursor: none;
+}
+
+.fp-video-bar {
+  position: absolute;
+  left: 50%;
+  bottom: calc(28px + env(safe-area-inset-bottom));
+  z-index: 2; /* above the shield */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100% - 32px);
+  padding: 8px 10px 8px 20px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  transform: translateX(-50%);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.fp-video.is-idle .fp-video-bar {
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  pointer-events: none;
+}
+
+.fp-video-bar .ctl,
+.fp-video-bar .ctl-small {
+  color: #fff;
+}
+
+.fp-video-bar .ctl:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.fp-video-bar .ctl-main {
+  background: #fff;
+  color: #111;
+}
+
+.fp-video-bar .ctl-main:hover:not(:disabled) {
+  background: #e6e6e6;
+}
+
+.fp-video-title {
+  min-width: 0;
+  max-width: 34vw;
+  margin-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* the iframe never gets pointer events: no accidental pause, no youtube overlays */
+.fp-host iframe {
+  pointer-events: none;
+}
+
+.fp-video-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .fp-main {
@@ -333,6 +424,12 @@
   font-size: 2rem;
 }
 
+@media (min-width: 769px) {
+  .fp-controls:has(.fp-desktop-only) {
+    max-width: 500px;
+  }
+}
+
 .fp-count {
   min-height: 1.2em;
   font-size: 0.85rem;
@@ -424,7 +521,64 @@
   padding-top: 4px;
 }
 
+/* laptop: toggles live in the controls row; phones: on both sides of the song counter */
+.fp-count-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.fp-count-row .icon-btn {
+  width: 48px;
+  height: 48px;
+  color: var(--muted);
+  font-size: 1.35rem;
+}
+
+.fp-count-row .icon-btn:disabled {
+  opacity: 0.4;
+}
+
+@media (min-width: 769px) {
+  .fp-count-row {
+    display: block; /* just the counter, same as before */
+  }
+
+  .fp-mobile-only {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
+  .fp-desktop-only {
+    display: none;
+  }
+
+  /* phone video mode: compact bar, no title, room for the notch / home bar */
+  .fp-video-bar {
+    gap: 6px;
+    padding: 6px 8px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+
+  .fp-video-title {
+    display: none;
+  }
+
+  .fp-video-bar .ctl {
+    width: 46px;
+    height: 46px;
+    font-size: 1.3rem;
+  }
+
+  .fp-video-bar .ctl-main {
+    width: 54px;
+    height: 54px;
+  }
+
   .fp-controls .ctl-main {
     width: 70px;
     height: 70px;

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { FiPlus, FiSearch, FiShuffle } from "react-icons/fi";
 import "../css/library.css";
@@ -81,8 +81,29 @@ export default function Library() {
 
   const go = (i: number) => navigate(i === 0 ? "/" : `/p/${tabs[i].id}`, { replace: true });
 
-  // route -> pager position (instant on first paint, smooth after)
-  useEffect(() => {
+  // title strip follows the pager frame by frame (not after the swipe settles), so both move together:
+  // the strip slides between tab positions and each title fades by how close its page is
+  const tabCount = tabs.length;
+  const syncTabs = useCallback(() => {
+    const pager = pagerRef.current;
+    const strip = tabsRef.current;
+    if (!pager || !strip || !pager.clientWidth) return;
+    const progress = Math.min(Math.max(pager.scrollLeft / pager.clientWidth, 0), tabCount - 1);
+    const i = Math.floor(progress);
+    const f = progress - i;
+    const items = strip.children as HTMLCollectionOf<HTMLElement>;
+    const from = items[i];
+    const to = items[Math.min(i + 1, tabCount - 1)];
+    if (!from || !to) return;
+    // active tab sits near the left edge, the previous one peeks in (tap it to go back)
+    strip.scrollLeft = from.offsetLeft + (to.offsetLeft - from.offsetLeft) * f - 56;
+    for (let j = 0; j < tabCount; j++) {
+      items[j]?.style.setProperty("--on", String(Math.max(0, 1 - Math.abs(progress - j))));
+    }
+  }, [tabCount]);
+
+  // route -> pager position (instant on first paint, smooth after); the strip follows via onScroll
+  useLayoutEffect(() => {
     const el = pagerRef.current;
     if (!el || active < 0) return;
     const left = active * el.clientWidth;
@@ -90,14 +111,8 @@ export default function Library() {
       el.scrollTo({ left, behavior: firstScroll.current ? "instant" : "smooth" });
     }
     firstScroll.current = false;
-  }, [active]);
-
-  // active tab sits near the left edge, the previous one peeks in (tap it to go back)
-  useEffect(() => {
-    const strip = tabsRef.current;
-    const tab = strip?.children[active] as HTMLElement | undefined;
-    if (strip && tab) strip.scrollTo({ left: tab.offsetLeft - 56, behavior: "smooth" });
-  }, [active, tabs.length]);
+    syncTabs();
+  }, [active, syncTabs]);
 
   // window resized / rotated: snap back onto the current page
   useEffect(() => {
@@ -113,6 +128,7 @@ export default function Library() {
   // pager position -> route, once the swipe has settled
   const settle = useRef(0);
   const onScroll = () => {
+    syncTabs();
     clearTimeout(settle.current);
     settle.current = window.setTimeout(() => {
       const el = pagerRef.current;
@@ -143,6 +159,8 @@ export default function Library() {
               role="tab"
               aria-selected={i === active}
               className={`lib-tab ${i === active ? "is-active" : ""}`}
+              // --on (0..1) is updated live while swiping, see syncTabs
+              style={{ "--on": i === active ? 1 : 0 } as CSSProperties}
               onClick={() => go(i)}
             >
               {t.emoji && <span className="lib-tab-emoji">{t.emoji}</span>}

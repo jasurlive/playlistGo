@@ -1,6 +1,11 @@
-### PlaylistGo Lite
+### playlistGo - when Spotify meets YouTube
 
-YouTube music player built on the [django-react](https://github.com/jasurlive/django-react) `front/` template (React 19 + Vite + React Compiler, same themes, menu and hooks layout). Frontend only, deployed on Vercel.
+<img width="70%" alt="light theme" src="https://github.com/user-attachments/assets/d6248c9f-d8a0-41ab-8b45-1c28663837ba" />
+<img width="70%" alt="main player" src="https://github.com/user-attachments/assets/7ca866b9-9341-44e4-958f-5e6fd71fcfd2" />
+<img width="70%" alt="mood page" src="https://github.com/user-attachments/assets/41f7e947-9190-4c71-86fe-ed9202cc0b22" />
+
+
+Built on the [django-react](https://github.com/jasurlive/django-react) `front/` template (React 19 + Vite + React Compiler, same themes, menu and hooks layout).
 
 ```bash
 npm i
