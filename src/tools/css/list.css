@@ -29,6 +29,11 @@
   padding: 0 4px 12px 8px;
 }
 
+/* reorderable lists: the drag handle uses the left gutter instead of pushing titles right */
+.songs:has(.song-handle) {
+  padding-left: 2px;
+}
+
 .song {
   display: flex;
   align-items: center;
@@ -149,4 +154,74 @@
 @keyframes eq {
   0%, 100% { height: 4px; }
   50% { height: 20px; }
+}
+
+/* ---------- drag to reorder (playlists, hooks/LOCAL/useDragReorder) ---------- */
+
+.song-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  align-self: stretch; /* full row height is grabbable */
+  width: 40px; /* comfortable thumb target */
+  margin-right: -8px; /* sits close to the thumbnail */
+  border-radius: 8px;
+  font-size: 1.55rem;
+  color: var(--muted);
+  opacity: 0.6;
+  cursor: grab;
+  transition: opacity 0.15s, color 0.15s;
+  touch-action: none; /* the drag is ours, not a scroll or a tab swipe */
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+.songs.is-reordering,
+.songs.is-reordering * {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.song.is-shifting {
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* the row in your hand: accent tint (on a solid base, so rows underneath don't show through),
+   thin accent ring, lifted shadow, content nudged up a touch */
+.song.is-dragging {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(var(--accent-soft), var(--accent-soft)), var(--bg-elev);
+  box-shadow: 0 0 0 1.5px var(--accent), 0 10px 28px rgba(0, 0, 0, 0.22);
+  content-visibility: visible;
+}
+
+.song.is-dragging .song-main {
+  transform: scale(1.015);
+}
+
+.song.is-dragging .song-title {
+  color: var(--accent);
+}
+
+.song-handle:hover,
+.song-handle:focus-visible,
+.song.is-dragging .song-handle {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.songs.is-reordering .song:hover {
+  background: none;
+}
+
+.songs.is-reordering .song.is-dragging:hover {
+  background: linear-gradient(var(--accent-soft), var(--accent-soft)), var(--bg-elev);
+}
+
+/* the rest step back a little so the dragged row stands out */
+.songs.is-reordering .song.is-shifting {
+  opacity: 0.7;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.15s;
 }

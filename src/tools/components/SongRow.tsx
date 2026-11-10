@@ -11,13 +11,15 @@ type Props = {
   onPlay: () => void;
   onMore: () => void; // ⋮, long press, right click
   trailing?: ReactNode; // replaces the ⋮ button
+  handle?: ReactNode; // drag handle, at the start of the row
 };
 
-export default function SongRow({ song, active, playing, onPlay, onMore, trailing }: Props) {
+export default function SongRow({ song, active, playing, onPlay, onMore, trailing, handle }: Props) {
   const press = useLongPress(onMore);
 
   return (
     <li className={`song ${active ? "is-active" : ""}`}>
+      {handle}
       <button type="button" className="song-main" onClick={onPlay} {...press}>
         <span className="song-thumb">
           <img src={thumbnail(song.id)} alt="" loading="lazy" decoding="async" draggable={false} />
