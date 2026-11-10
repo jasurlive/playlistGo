@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import type { Song } from '../../lib/types'
 import { getVideoId, splitTitle } from '../../lib/youtube'
 
-// the song library lives in public/songs/songs.csv (title,url)
-const CSV_PATH = '/songs/songs.csv'
+// the song library lives in public/data/songs.csv (title,url)
+const CSV_PATH = '/data/songs.csv'
 
 // split one csv line, honoring "quoted, fields"
 function splitLine(line: string): string[] {
