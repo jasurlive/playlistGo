@@ -5,6 +5,7 @@ import "../css/library.css";
 import type { MoodKey } from "../lib/types";
 import { MOODS, moodEmoji } from "../lib/moods";
 import { playlistActions, usePlaylists } from "../hooks/LOCAL/usePlaylists";
+import { confirmDialog } from "../lib/confirm";
 
 function MoodPicker({ value, onPick }: { value: MoodKey; onPick: (m: MoodKey) => void }) {
   return (
@@ -34,8 +35,14 @@ export default function Moods() {
   const [name, setName] = useState("");
   const [mood, setMood] = useState<MoodKey>("chill");
 
-  const remove = (id: string, label: string) => {
-    if (confirm(`Delete “${label}”? The songs stay in your library.`)) playlistActions.remove(id);
+  const remove = async (id: string, label: string) => {
+    const ok = await confirmDialog({
+      title: `Delete “${label}”?`,
+      message: "The songs stay in your library.",
+      confirmLabel: "Delete",
+      danger: true,
+    });
+    if (ok) playlistActions.remove(id);
   };
 
   return (

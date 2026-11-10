@@ -4,6 +4,7 @@ import ErrorBoundary from "./ErrorBoundary";
 import PlayerProvider from "./PlayerProvider";
 import MiniPlayer from "./MiniPlayer";
 import FullPlayer from "./FullPlayer";
+import ConfirmHost from "./ConfirmDialog";
 
 // app shell: page / mini player / bottom navbar (sidebar on desktop) + the full player overlay
 // the player lives here, not in a page, so switching pages never stops the music
@@ -22,6 +23,7 @@ export default function Layout() {
         <MiniPlayer />
         <Menu />
         <FullPlayer />
+        <ConfirmHost />
       </div>
     </PlayerProvider>
   );

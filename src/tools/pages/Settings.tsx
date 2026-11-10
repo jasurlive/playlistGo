@@ -1,6 +1,7 @@
 import { FiMaximize, FiMinimize } from "react-icons/fi";
 import { useTheme } from "../hooks/LOCAL/useTheme";
 import { useFullscreen } from "../hooks/LOCAL/useFullscreen";
+import { confirmDialog } from "../lib/confirm";
 import { playlistActions } from "../hooks/LOCAL/usePlaylists";
 import { THEME_LABELS } from "../lib/themes";
 import { THEME_ICONS } from "../shared/ThemeIcons";
@@ -82,7 +83,15 @@ export default function Settings() {
       <button
         type="button"
         className="page-button page-button-danger"
-        onClick={() => confirm("Reset all playlists to the defaults?") && playlistActions.reset()}
+        onClick={async () => {
+          const ok = await confirmDialog({
+            title: "Reset playlists?",
+            message: "All playlists go back to the defaults. This can't be undone.",
+            confirmLabel: "Reset",
+            danger: true,
+          });
+          if (ok) playlistActions.reset();
+        }}
       >
         Reset playlists
       </button>

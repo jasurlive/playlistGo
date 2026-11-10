@@ -216,3 +216,61 @@
     padding-top: 18px;
   }
 }
+
+/* ---------- confirm dialog (lib/confirm.ts) ---------- */
+
+.confirm-head {
+  padding: 6px 22px 4px;
+}
+
+.confirm-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.confirm-message {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 18px 22px 22px;
+}
+
+.confirm-actions .btn {
+  min-height: 46px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.btn-danger-solid,
+.btn-danger-solid:hover:not(:disabled) {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn-danger-solid:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+@media (min-width: 769px) {
+  .confirm-head {
+    padding-top: 22px;
+  }
+
+  .confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .confirm-actions .btn {
+    min-width: 110px;
+  }
+}
