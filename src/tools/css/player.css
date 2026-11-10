@@ -134,6 +134,26 @@
   height: 46px;
 }
 
+/* /myplayer in mini mode (parent site sent playlistgo:mini): only the mini player, filling the iframe */
+.pg-mini .app-main {
+  display: none;
+}
+
+.pg-mini .app.app-embed {
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: 'mini';
+}
+
+.pg-mini .mini {
+  border-top: 0;
+  animation: none;
+}
+
+.mini-placeholder {
+  justify-content: center;
+  color: var(--muted);
+}
+
 /* ---------- full screen player ---------- */
 
 .fp {
