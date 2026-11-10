@@ -1,0 +1,195 @@
+/* ---------- app shell + shared controls (touch first) ---------- */
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+input {
+  touch-action: manipulation; /* no 300ms double-tap zoom delay */
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---------- shell ----------
+   phone:   page / mini player / bottom navbar (navbar is the very bottom)
+   desktop: sidebar | page, mini player under the page */
+.app {
+  --menu-w: 220px;
+  --bar-h: 60px;
+  display: grid;
+  height: 100dvh;
+  overflow: clip; /* hidden would still let scrollIntoView shift it */
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'main' 'mini' 'nav';
+}
+
+.app:has(.menu-collapsed) {
+  --menu-w: 64px;
+}
+
+.app-main {
+  grid-area: main;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-top: env(safe-area-inset-top);
+}
+
+@media (min-width: 769px) {
+  .app {
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-columns: var(--menu-w) minmax(0, 1fr);
+    grid-template-areas: 'nav main' 'nav mini';
+    transition: grid-template-columns 0.2s;
+  }
+}
+
+/* simple scrolling pages (moods, queue, settings) */
+.page-pad {
+  max-width: 760px;
+  padding: 1.25rem 1rem 2rem;
+  margin: 0 auto;
+}
+
+.page-h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+}
+
+.touch-list {
+  display: grid;
+  gap: 0.3rem;
+  padding-left: 1.1rem;
+  list-style: disc;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  padding: 0 1rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.btn-accent {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg-elev);
+}
+
+.btn-accent:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: var(--bg-elev);
+}
+
+.btn-ghost {
+  background: none;
+  border-color: transparent;
+}
+
+.btn-on,
+.btn.is-on {
+  color: var(--accent);
+}
+
+.btn-danger:hover:not(:disabled) {
+  color: var(--danger);
+  border-color: transparent;
+  background: var(--hover);
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 1.15rem;
+  transition: background-color 0.15s, color 0.15s, transform 0.1s;
+}
+
+.icon-btn:hover {
+  background: var(--hover);
+  color: var(--text-strong);
+}
+
+.icon-btn:active {
+  transform: scale(0.9);
+}
+
+.field {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 1rem; /* 16px+ so ios doesn't zoom on focus */
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 38px;
+  padding: 0 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+
+.chip:active {
+  transform: scale(0.95);
+}
+
+.chip.is-on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

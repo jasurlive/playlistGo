@@ -12,12 +12,8 @@ dist
 dist-ssr
 *.local
 
-public/python/__pycache__
-__pycache__/
-
-
 # Editor directories and files
-.vscode
+.vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
@@ -26,8 +22,7 @@ __pycache__/
 *.njsproj
 *.sln
 *.sw?
-
-# Env
 .env
-.venv/
-
+public/python/.venv
+public/songs/.venv
+__pycache__/

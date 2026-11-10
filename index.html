@@ -1,22 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="play.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/play.png" />
+    <link rel="apple-touch-icon" href="/play.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta
       name="description"
-      content="PlaylistGo Music Player for YouTubeツ. Add songs from YouTube and listen to them in a single place. Order, repeat, shuffle songs. Fully customizable and easy to interact. Try this out! Designed by jasurlive.uz"
+      content="playlistGo - when Spotify meets YouTubeツ. Add songs from YouTube and listen to them in a single place. Order, repeat, shuffle songs. Fully customizable and easy to interact. Try this out! Designed by jasurlive.uz"
     />
-    <link rel="apple-touch-icon" href="play.png" />
-
-    <title>PlaylistGo ツ🖤</title>
+    <title>playlistGo ツ🖤</title>
+    <!-- set theme before first paint so dark mode doesn't flash light -->
+    <script>
+      try {
+        // %VITE_ENABLE_EXTRA_THEMES% is filled in by Vite from .env
+        var themes = ['light', 'dark']
+        if ('%VITE_ENABLE_EXTRA_THEMES%' !== 'false') themes.push('linen', 'fjord', 'moss', 'charcoal')
+        var saved = localStorage.getItem('theme')
+        document.documentElement.dataset.theme =
+          themes.indexOf(saved) !== -1
+            ? saved
+            : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      } catch {}
+    </script>
   </head>
-
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <script type="module" src="src/react/main.tsx"></script>
+    <script type="module" src="/src/app/main.tsx"></script>
   </body>
 </html>

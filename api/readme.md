@@ -1,0 +1,1 @@
+you can add other api calls in here that uses env variables of vercel itself so none of the keys will be exposed to public in the code
