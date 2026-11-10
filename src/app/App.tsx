@@ -10,11 +10,13 @@ import Search from '../tools/pages/Search'
 import Queue from '../tools/pages/Queue'
 import Settings from '../tools/pages/Settings'
 import NotFound from '../tools/pages/NotFound'
+import { EMBED_BASE, isEmbed } from '../tools/lib/embed'
 
 // add a page: create it in tools/pages, add a <Route> here and an item in Menu.tsx
+// /myplayer/... serves these same routes without the navbar (lib/embed.ts)
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={isEmbed ? EMBED_BASE : undefined}>
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Library />} />
