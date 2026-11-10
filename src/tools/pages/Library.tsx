@@ -6,6 +6,7 @@ import type { Song } from "../lib/types";
 import { moodEmoji } from "../lib/moods";
 import { useLibrary } from "../hooks/LOCAL/useLibrary";
 import { playlistActions, usePlaylists } from "../hooks/LOCAL/usePlaylists";
+import { libraryOrderActions } from "../hooks/LOCAL/useLibraryOrder";
 import { usePlayer } from "../hooks/LOCAL/usePlayer";
 import SongList from "../components/SongList";
 
@@ -35,6 +36,12 @@ function TabPage({ tab, loading, error }: { tab: Tab; loading: boolean; error: s
         songs={tab.songs}
         source={tab.playlistId ?? "all"}
         playlistId={tab.playlistId}
+        // every tab can be reordered: playlists keep their own order, "All songs" a saved custom order
+        onReorder={(from, to) =>
+          tab.playlistId
+            ? playlistActions.moveSong(tab.playlistId, tab.songs[from].id, tab.songs[to].id)
+            : libraryOrderActions.move(tab.songs, from, to)
+        }
         empty={
           tab.playlistId && (
             <div className="list-empty">

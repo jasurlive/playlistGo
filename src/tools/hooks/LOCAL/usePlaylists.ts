@@ -79,6 +79,16 @@ export const playlistActions = {
     })),
   addSongs: (id: string, songIds: string[]) =>
     update(id, (p) => ({ ...p, songIds: [...new Set([...p.songIds, ...songIds])] })),
+  // drag & drop order: put songId where toSongId is (ids, not indexes: hidden / missing songs keep their place)
+  moveSong: (id: string, songId: string, toSongId: string) =>
+    update(id, (p) => {
+      const ids = [...p.songIds]
+      const from = ids.indexOf(songId)
+      const to = ids.indexOf(toSongId)
+      if (from < 0 || to < 0 || from === to) return p
+      ids.splice(to, 0, ...ids.splice(from, 1))
+      return { ...p, songIds: ids }
+    }),
   removeSongEverywhere: (songId: string) =>
     commit(playlists.map((p) => ({ ...p, songIds: p.songIds.filter((s) => s !== songId) }))),
   reset: () => commit(DEFAULTS),

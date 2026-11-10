@@ -211,6 +211,18 @@ export default function PlayerProvider({ children }: { children: ReactNode }) {
           if (queue.some((s) => s.id === song.id)) return;
           editQueue([...queue, song]);
         },
+        moveInQueue(from, to) {
+          if (from === to || !queue[from] || !queue[to]) return;
+          const next = [...queue];
+          next.splice(to, 0, ...next.splice(from, 1));
+          // the playing song keeps playing, wherever it ends up
+          const at =
+            from === index ? to
+            : from < index && to >= index ? index - 1
+            : from > index && to <= index ? index + 1
+            : index;
+          editQueue(next, at);
+        },
         removeFromQueue(i) {
           if (i === index) return; // remove the playing song by skipping it instead
           editQueue(queue.filter((_, j) => j !== i), i < index ? index - 1 : index);

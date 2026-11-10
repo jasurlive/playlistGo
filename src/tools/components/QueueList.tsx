@@ -1,16 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { FiX } from "react-icons/fi";
 import type { Song } from "../lib/types";
 import { usePlayer } from "../hooks/LOCAL/usePlayer";
+import { useDragReorder } from "../hooks/LOCAL/useDragReorder";
+import DragHandle from "./DragHandle";
 import SongRow from "./SongRow";
 import SongActions from "./SongActions";
 import "../css/list.css";
 
-// what plays next; tap jumps, x removes
+// what plays next; tap jumps, x removes, grip = drag to reorder
 export default function QueueList({ scrollToCurrent = true }: { scrollToCurrent?: boolean }) {
   const player = usePlayer();
   const [menuSong, setMenuSong] = useState<Song | null>(null);
-  const listRef = useRef<HTMLOListElement>(null);
+  const { listRef, handleProps } = useDragReorder({ count: player.queue.length, onMove: player.moveInQueue });
 
   useEffect(() => {
     if (!scrollToCurrent) return;
@@ -22,7 +24,8 @@ export default function QueueList({ scrollToCurrent = true }: { scrollToCurrent?
     const r = row.getBoundingClientRect();
     const b = box.getBoundingClientRect();
     box.scrollTop += r.top - b.top - box.clientHeight / 2 + r.height / 2;
-  }, [scrollToCurrent, player.index]);
+    // follows the playing song, not its position: dragging rows around doesn't jump the list
+  }, [scrollToCurrent, player.current?.id, listRef]);
 
   if (player.queue.length === 0) return <p className="list-empty">The queue is empty. Play something!</p>;
 
@@ -31,12 +34,13 @@ export default function QueueList({ scrollToCurrent = true }: { scrollToCurrent?
       <ol className="songs" ref={listRef}>
         {player.queue.map((song, i) => (
           <SongRow
-            key={`${i}-${song.id}`}
+            key={song.id}
             song={song}
             active={i === player.index}
             playing={player.playing}
             onPlay={() => player.playAt(i)}
             onMore={() => setMenuSong(song)}
+            handle={player.queue.length > 1 ? <DragHandle title={song.title} {...handleProps(i)} /> : undefined}
             trailing={
               i === player.index ? (
                 <span className="song-pos">{i + 1}</span>

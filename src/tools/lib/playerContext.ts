@@ -19,6 +19,7 @@ export type PlayerApi = {
   playNext: (song: Song) => void
   addToQueue: (song: Song) => void
   removeFromQueue: (index: number) => void
+  moveInQueue: (from: number, to: number) => void // drag & drop in the play queue
   toggle: () => void
   next: () => void
   prev: () => void
