@@ -51,6 +51,13 @@ button:disabled {
   }
 }
 
+/* /myplayer (iframe embed): no navbar, page + mini player only, on every screen size */
+.app.app-embed {
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'main' 'mini';
+}
+
 /* simple scrolling pages (moods, queue, settings) */
 .page-pad {
   max-width: 760px;
