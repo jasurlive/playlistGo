@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PlayerContext, type Repeat } from "../lib/playerContext";
 import type { Song } from "../lib/types";
-import { loadYouTubeApi, YT_STATE, type YTPlayer } from "../lib/youtube";
+import { hideCaptions, loadYouTubeApi, MINIMAL_PLAYER_VARS, YT_STATE, type YTPlayer } from "../lib/youtube";
 
 // last queue survives a reload (it's restored paused)
 const QUEUE_KEY = "queue";
@@ -129,10 +129,11 @@ export default function PlayerProvider({ children }: { children: ReactNode }) {
           videoId: current.id,
           width: "100%",
           height: "100%",
-          playerVars: { autoplay: autoplay.current ? 1 : 0, playsinline: 1, rel: 0, modestbranding: 1 },
+          playerVars: { ...MINIMAL_PLAYER_VARS, autoplay: autoplay.current ? 1 : 0 },
           events: {
             onReady: (e) => {
               ready.current = true;
+              hideCaptions(e.target);
               // user picked another song while the player was booting
               if (wantedId.current && wantedId.current !== loadedId.current) {
                 loadedId.current = wantedId.current;
@@ -141,6 +142,7 @@ export default function PlayerProvider({ children }: { children: ReactNode }) {
             },
             onStateChange: (e) => {
               if (e.data === YT_STATE.PLAYING) {
+                hideCaptions(e.target);
                 everPlayed.current = true;
                 autoplay.current = true;
                 setPlaying(true);
@@ -167,7 +169,7 @@ export default function PlayerProvider({ children }: { children: ReactNode }) {
   }, [host, current]);
 
   useEffect(() => {
-    if (current) document.title = `${current.title} · playlistGo`;
+    if (current) document.title = `${current.title} · playlistGo ツ🖤`;
   }, [current]);
 
   useEffect(() => {

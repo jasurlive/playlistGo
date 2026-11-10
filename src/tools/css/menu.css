@@ -84,8 +84,8 @@
     border-right-width: 1px;
   }
 
-  /* theme toggle sits at the bottom of the sidebar */
-  .menu-desktop-only {
+  /* desktop-only items (full screen, theme) sit together at the bottom of the sidebar */
+  .menu-mobile-visible + .menu-desktop-only {
     margin-top: auto;
   }
 }

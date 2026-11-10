@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 
-// whole-page fullscreen (the app itself, not the YouTube player)
+// whole-page fullscreen (the app itself, never the YouTube iframe's own fullscreen)
+export const enterFullscreen = () =>
+  document.fullscreenElement
+    ? Promise.resolve()
+    : document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(() => {}); // denied: nothing to do
+
+export const exitFullscreen = () =>
+  document.fullscreenElement ? document.exitFullscreen().catch(() => {}) : Promise.resolve();
+
 export function useFullscreen() {
   const supported = typeof document !== "undefined" && !!document.fullscreenEnabled;
   const [isFullscreen, setIsFullscreen] = useState(() => !!document.fullscreenElement);
@@ -12,10 +20,8 @@ export function useFullscreen() {
   }, []);
 
   const toggleFullscreen = useCallback(() => {
-    const request = document.fullscreenElement
-      ? document.exitFullscreen()
-      : document.documentElement.requestFullscreen({ navigationUI: "hide" });
-    request.catch(() => {}); // denied / not allowed: nothing to do
+    if (document.fullscreenElement) exitFullscreen();
+    else enterFullscreen();
   }, []);
 
   return { supported, isFullscreen, toggleFullscreen };

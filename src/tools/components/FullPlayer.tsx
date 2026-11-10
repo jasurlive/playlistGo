@@ -1,8 +1,10 @@
-import { useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   FiChevronDown,
   FiChevronUp,
-  FiMoreVertical,
+  FiMaximize,
+  FiMinimize,
+  FiMonitor,
   FiPause,
   FiPlay,
   FiRepeat,
@@ -10,6 +12,7 @@ import {
   FiSkipBack,
   FiSkipForward,
 } from "react-icons/fi";
+import { MdFullscreenExit } from "react-icons/md";
 import { useNavigate } from "react-router";
 import "../css/player.css";
 import { usePlayer } from "../hooks/LOCAL/usePlayer";
@@ -17,11 +20,11 @@ import { usePlaylists } from "../hooks/LOCAL/usePlaylists";
 import { useProgress } from "../hooks/LOCAL/useProgress";
 import { useShortcuts } from "../hooks/LOCAL/useShortcuts";
 import { useDragDismiss } from "../hooks/LOCAL/useDragDismiss";
+import { enterFullscreen, exitFullscreen, useFullscreen } from "../hooks/LOCAL/useFullscreen";
 import { bigThumbnail } from "../lib/youtube";
 import { formatTime } from "../lib/format";
 import { sourceLabel } from "../lib/sources";
 import QueueList from "./QueueList";
-import SongActions from "./SongActions";
 import PlaylistSheet from "./PlaylistSheet";
 
 function Progress({ live }: { live: boolean }) {
@@ -73,10 +76,67 @@ export default function FullPlayer() {
   const navigate = useNavigate();
   const { current, playing, shuffle, repeat, expanded, queue, index } = player;
   const [queueOpen, setQueueOpen] = useState(false);
-  const [menu, setMenu] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // laptop: left toggle = whole website fullscreen, right toggle = video fills the screen.
+  // video mode is just css on the same box: the iframe is never moved or reloaded,
+  // so the next song plays in place and the mode survives song changes
+  const page = useFullscreen();
+  const [videoFull, setVideoFull] = useState(false);
+  const ownFullscreen = useRef(false); // we turned on browser fullscreen for video mode, so we turn it off too
+  const [idle, setIdle] = useState(false);
+  const idleTimer = useRef(0);
+
+  // video mode: controls + cursor hide after a moment without mouse movement
+  const wake = () => {
+    setIdle(false);
+    clearTimeout(idleTimer.current);
+    idleTimer.current = window.setTimeout(() => setIdle(true), 2500);
+  };
+  useEffect(() => () => clearTimeout(idleTimer.current), []);
+
+  const enterVideo = () => {
+    setVideoFull(true);
+    wake();
+    const lockLandscape = () => {
+      // phones: turn sideways when the browser allows it (android while fullscreen; iphone can't)
+      const orientation = screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> };
+      if (matchMedia("(pointer: coarse)").matches) orientation.lock?.("landscape").catch(() => {});
+    };
+    if (!document.fullscreenElement) {
+      ownFullscreen.current = true;
+      enterFullscreen().then(lockLandscape);
+    } else lockLandscape();
+  };
+  const exitVideo = () => {
+    setVideoFull(false);
+    try {
+      screen.orientation.unlock();
+    } catch {
+      // never locked / not supported
+    }
+    if (ownFullscreen.current) {
+      ownFullscreen.current = false;
+      exitFullscreen();
+    }
+  };
+  const toggleVideo = () => (videoFull ? exitVideo() : enterVideo());
+
+  // browser fullscreen left (Esc / F11) while in video mode: leave video mode too
+  useEffect(() => {
+    if (!videoFull) return;
+    const onChange = () => {
+      if (!document.fullscreenElement && ownFullscreen.current) {
+        ownFullscreen.current = false;
+        setVideoFull(false);
+      }
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, [videoFull]);
+
   const close = () => {
+    if (videoFull) exitVideo();
     setQueueOpen(false);
     player.setExpanded(false);
   };
@@ -101,7 +161,20 @@ export default function FullPlayer() {
     s: player.toggleShuffle,
     r: player.cycleRepeat,
     "/": () => navigate("/search"),
-    escape: () => expanded && (queueOpen ? setQueueOpen(false) : close()),
+    escape: () => {
+      if (videoFull) exitVideo();
+      else if (expanded && queueOpen) setQueueOpen(false);
+      else if (expanded) close();
+    },
+    f: () => expanded && current && toggleVideo(),
+    // space: open the full player / minimize it back to the mini player
+    // (skipped while typing, see useShortcuts, and while a sheet / dialog is open)
+    " ": () => {
+      if (document.querySelector(".sheet")) return;
+      if (videoFull) exitVideo(); // first step down: video mode -> full player
+      else if (expanded) close();
+      else if (current) player.setExpanded(true);
+    },
   });
 
   const upNext = queue[index + 1];
@@ -109,7 +182,7 @@ export default function FullPlayer() {
   return (
     <div
       ref={panelRef}
-      className={`fp ${expanded ? "is-open" : ""}`}
+      className={`fp ${expanded ? "is-open" : ""} ${videoFull ? "is-video-full" : ""}`}
       aria-hidden={!expanded}
       inert={!expanded}
       role="dialog"
@@ -127,19 +200,47 @@ export default function FullPlayer() {
           <span>Playing from</span>
           <b>{sourceLabel(player.source, playlists)}</b>
         </div>
-        <button
-          type="button"
-          className="icon-btn"
-          onClick={() => setMenu(true)}
-          disabled={!current}
-          aria-label="Song actions"
-        >
-          <FiMoreVertical />
-        </button>
+        {/* song actions live in the lists (hold / right click), this just keeps the title centered */}
+        <span className="fp-top-spacer" aria-hidden="true" />
       </header>
 
-      <div className="fp-video">
+      <div
+        className={`fp-video ${videoFull && idle ? "is-idle" : ""}`}
+        onMouseMove={videoFull ? wake : undefined}
+        onPointerDown={videoFull ? wake : undefined}
+      >
         <div className="fp-host" ref={setHost} />
+        {/* swallows every touch / click on the video: only our own controls drive the player */}
+        <div className="fp-video-shield" aria-hidden="true" onDoubleClick={videoFull ? exitVideo : undefined} />
+        {videoFull && (
+          <div className="fp-video-bar">
+            <span className="fp-video-title">{current?.title}</span>
+            <button type="button" className="ctl" onClick={player.prev} title="Previous (4)" aria-label="Previous">
+              <FiSkipBack />
+            </button>
+            <button
+              type="button"
+              className="ctl ctl-main"
+              onClick={player.toggle}
+              aria-label={playing ? "Pause" : "Play"}
+              title="Play / pause (K)"
+            >
+              {playing ? <FiPause /> : <FiPlay />}
+            </button>
+            <button type="button" className="ctl" onClick={player.next} title="Next (6)" aria-label="Next">
+              <FiSkipForward />
+            </button>
+            <button
+              type="button"
+              className="ctl ctl-small"
+              onClick={exitVideo}
+              title="Exit video full screen (F / Esc)"
+              aria-label="Exit video full screen"
+            >
+              <MdFullscreenExit />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="fp-main" {...panelDrag}>
@@ -151,6 +252,17 @@ export default function FullPlayer() {
         </div>
 
         <div className="fp-controls">
+          {page.supported && (
+            <button
+              type="button"
+              className="ctl ctl-small fp-desktop-only"
+              onClick={page.toggleFullscreen}
+              title={page.isFullscreen ? "Exit full screen" : "Full screen website"}
+              aria-label={page.isFullscreen ? "Exit full screen" : "Full screen website"}
+            >
+              {page.isFullscreen ? <FiMinimize /> : <FiMaximize />}
+            </button>
+          )}
           <button
             type="button"
             className={`ctl ctl-small ${repeat !== "off" ? "is-on" : ""}`}
@@ -186,9 +298,43 @@ export default function FullPlayer() {
           >
             <FiShuffle />
           </button>
+          <button
+            type="button"
+            className="ctl ctl-small fp-desktop-only"
+            onClick={toggleVideo}
+            disabled={!current}
+            title="Full screen video (F)"
+            aria-label="Full screen video"
+          >
+            <FiMonitor />
+          </button>
         </div>
 
-        <p className="fp-count">{queue.length ? `${index + 1}/${queue.length}` : ""}</p>
+        {/* phones: the full screen toggles sit on both sides of the song counter */}
+        <div className="fp-count-row">
+          {page.supported ? (
+            <button
+              type="button"
+              className="icon-btn fp-mobile-only"
+              onClick={page.toggleFullscreen}
+              aria-label={page.isFullscreen ? "Exit full screen" : "Full screen app"}
+            >
+              {page.isFullscreen ? <FiMinimize /> : <FiMaximize />}
+            </button>
+          ) : (
+            <span />
+          )}
+          <p className="fp-count">{queue.length ? `${index + 1}/${queue.length}` : ""}</p>
+          <button
+            type="button"
+            className="icon-btn fp-mobile-only"
+            onClick={toggleVideo}
+            disabled={!current}
+            aria-label="Full screen video"
+          >
+            <FiMonitor />
+          </button>
+        </div>
 
         <div className="fp-bottom">
           <span />
@@ -218,7 +364,6 @@ export default function FullPlayer() {
         <div className="fp-queue-list">{queueOpen && <QueueList />}</div>
       </section>
 
-      {menu && current && <SongActions song={current} onClose={() => setMenu(false)} />}
       {saving && <PlaylistSheet songs={queue} onClose={() => setSaving(false)} />}
     </div>
   );

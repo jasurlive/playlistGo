@@ -13,6 +13,8 @@ const SHORTCUTS: [string, string][] = [
   ["S", "Shuffle on / off"],
   ["R", "Repeat: all → one → off"],
   ["/", "Search"],
+  ["Space", "Open / minimize the player"],
+  ["F", "Video full screen (laptop)"],
   ["Esc", "Close the player"],
   ["Ctrl + J", "Next theme"],
 ];

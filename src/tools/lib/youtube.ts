@@ -25,7 +25,30 @@ export type YTPlayer = {
   getCurrentTime(): number
   getDuration(): number
   getPlayerState(): number
+  unloadModule(name: string): void
   destroy(): void
+}
+
+// minimal embed: our own ui does play / seek / skip, youtube shows just the video
+// docs: https://developers.google.com/youtube/player_parameters
+export const MINIMAL_PLAYER_VARS = {
+  playsinline: 1, // no forced fullscreen on iphone
+  controls: 0, // no youtube control bar
+  disablekb: 1, // our own shortcuts, not youtube's
+  fs: 0, // no fullscreen button
+  rel: 0, // related videos only from the same channel
+  iv_load_policy: 3, // no annotations / cards
+  cc_load_policy: 0, // subtitles off (not reliable alone, see hideCaptions)
+} as const
+
+// youtube turns subtitles back on per video (account / video defaults), so drop the module on every play
+export function hideCaptions(player: YTPlayer) {
+  try {
+    player.unloadModule('captions') // html5 player
+    player.unloadModule('cc') // legacy name
+  } catch {
+    // not loaded yet / not supported: nothing to hide
+  }
 }
 
 type YTEvent = { target: YTPlayer; data: number }
