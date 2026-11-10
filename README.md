@@ -1,98 +1,36 @@
-# PlaylistGo
+### PlaylistGo Lite
 
-PlaylistGo is a simple TypeScript web music player that uses YouTube to play songs from a CSV playlist.
-
-The main idea is simple: keep the playlist in a CSV file, and the app handles the rest.
-
-<img width="1918" height="889" alt="PlaylistGo UI" src="https://github.com/user-attachments/assets/ae79b29c-bd2d-4ca8-87de-72afaa01ec94" />
-<img src="https://github.com/user-attachments/assets/a6fc2858-a750-40f1-b4c2-6518c5ad607d" alt="PlaylistGo UI" />
-
-## Features
-
-* Play songs from YouTube
-* Search YouTube when a song has no URL
-* Load songs from `public/python/songs.csv`
-* Simple web player
-* TypeScript
-* Easy to update and contribute to
-
-## Playlist
-
-The playlist is stored here:
-
-```text
-public/python/songs.csv
-```
-
-The CSV has two columns:
-
-```csv
-title,url
-Song Name,https://www.youtube.com/watch?v=example
-Another Song,
-```
-
-### Adding songs
-
-You do not need to change the code to add songs.
-
-Just edit:
-
-```text
-public/python/songs.csv
-```
-
-Add your song, save the file, and create a pull request.
-
-For example:
-
-```csv
-title,url
-Coldplay - Yellow,https://www.youtube.com/watch?v=yKNxeF4KMsY
-Adele - Hello,https://www.youtube.com/watch?v=YQHsXMglC9A
-etc.
-```
-
-Please keep the CSV format valid and use the existing column names.
-
-## Adding songs using python gui
-In progress...
-
-## Run locally
-
-You need Node.js installed.
+YouTube music player built on the [django-react](https://github.com/jasurlive/django-react) `front/` template (React 19 + Vite + React Compiler, same themes, menu and hooks layout). Frontend only, deployed on Vercel.
 
 ```bash
-git clone https://github.com/jasurlive/PlaylistGo.git
-cd PlaylistGo
-npm install
-npm run dev
+npm i
+cp .env.example .env
+npm run dev          # http://localhost:1212
 ```
 
-You also need a YouTube API key if the project configuration requires YouTube search.
+- **Songs**: `public/songs/songs.csv` (`title,url`; `Artist - Title` is split into two lines) + songs you save from YouTube
+- **Search**: one box, two sources: *My songs* (instant) or *YouTube* (press Enter; pasted links work without a key). Swipe sideways to flip.
+- **YouTube API**: put `YOUTUBE_API_KEY` in `.env` (dev) and in the Vercel env (prod). The browser only talks to `/api/search` (`api/search.ts`), so the key is never public. 10 searches/min per IP, results cached for an hour.
+- **Mood playlists = library tabs**: name + mood emoji, saved in `localStorage`. Manage them in *Moods*.
+- **Touch**
+  - library: swipe sideways between playlist tabs; hold a song (or tap ⋮) for play next / add to queue / add to playlist / save
+  - mini player: tap or swipe up to open, sideways to skip
+  - full player: swipe down to close, sideways to skip, up for the play queue
+  - sheets: drag down to close
+- **Keys**: `K`/`5` play-pause, `6`/`N` next, `4`/`P` prev, `S` shuffle, `R` repeat, `/` search, `Esc` close, `Ctrl+J` theme
 
-## Contributing
-
-The easiest way to contribute is to add or update songs in:
-
-```text
-public/python/songs.csv
 ```
-
-1. Fork the repository.
-2. Edit `public/python/songs.csv`.
-3. Add or update songs.
-4. Commit your changes.
-5. Open a pull request.
-
-Code contributions are also welcome if you want to improve the player.
-
-## Pull Requests
-
-For playlist changes, please keep the PR simple and only include the songs you added or changed.
-
-This makes it easier to review and merge playlist updates.
-
-## License
-
-Apache-2.0
+api/search.ts            vercel function: youtube search (key stays server side)
+src/
+├── app/                 main.tsx, App.tsx (routes), env.d.ts
+└── tools/
+    ├── pages/           Library (tabs), Moods, Search, Queue, Settings, NotFound
+    ├── components/      Layout, PlayerProvider, MiniPlayer, FullPlayer, SongList/SongRow, QueueList,
+    │                    Sheet, SongActions, PlaylistSheet, ErrorBoundary
+    ├── shared/          Menu (sidebar / mobile tab bar), ThemeIcons
+    ├── hooks/GET/       useGetSongs (csv), useYouTubeSearch (/api/search)
+    ├── hooks/LOCAL/     usePlaylists, useSavedSongs, useLibrary, usePlayer, useProgress,
+    │                    useSwipe, useDragDismiss, useLongPress, useShortcuts, useTheme
+    ├── lib/             youtube, moods, sources, format, themes, types, playerContext
+    └── css/
+```

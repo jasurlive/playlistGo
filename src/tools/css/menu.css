@@ -1,0 +1,146 @@
+/* sidebar (desktop) / bottom tab bar (phones), placed by the .app grid in ui.css */
+
+.menu {
+  grid-area: nav;
+  z-index: 10;
+  display: flex;
+  background: var(--bg-elev);
+  color: var(--text);
+  border: 0 solid var(--border);
+  scrollbar-width: none;
+}
+
+.menu::-webkit-scrollbar {
+  display: none;
+}
+
+.menu-item,
+.menu-toggle {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 14px;
+  height: 52px;
+  padding: 0 21px;
+  color: var(--muted);
+  font-size: 22px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.menu-toggle {
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.menu-brand {
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.menu-item:hover,
+.menu-toggle:hover {
+  background: var(--hover);
+  color: var(--text-strong);
+}
+
+.menu-item.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 var(--accent);
+}
+
+.menu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.menu-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 15px;
+}
+
+.menu-collapsed .menu-label {
+  display: none;
+}
+
+.menu-collapsed .menu-item,
+.menu-collapsed .menu-toggle {
+  justify-content: center;
+  padding: 0;
+}
+
+@media (min-width: 769px) {
+  .menu {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-right-width: 1px;
+  }
+
+  /* theme toggle sits at the bottom of the sidebar */
+  .menu-desktop-only {
+    margin-top: auto;
+  }
+}
+
+/* phones: max 5 tabs, icons only */
+@media (max-width: 768px) {
+  .menu-desktop-only,
+  .menu-toggle {
+    display: none;
+  }
+
+  .menu {
+    height: calc(var(--bar-h) + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    flex-direction: row;
+    border-top-width: 1px;
+  }
+
+  .menu-item,
+  .menu-collapsed .menu-item {
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    height: var(--bar-h);
+    padding: 0 2px;
+  }
+
+  .menu-item:active {
+    background: var(--hover);
+  }
+
+  .menu-item.active {
+    color: var(--text-strong);
+    background: none;
+    box-shadow: none;
+  }
+
+  .menu-item.active .menu-icon {
+    color: var(--accent);
+  }
+
+  .menu-icon {
+    font-size: 22px;
+    transition: transform 0.2s;
+  }
+
+  .menu-item.active .menu-icon {
+    transform: translateY(-1px);
+  }
+
+  /* icons only on phones, labels stay for screen readers via aria-label */
+  .menu-label,
+  .menu-collapsed .menu-label {
+    display: none;
+  }
+}
