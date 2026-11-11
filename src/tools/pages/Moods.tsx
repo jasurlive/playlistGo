@@ -6,6 +6,7 @@ import type { MoodKey } from "../lib/types";
 import { MOODS, moodEmoji } from "../lib/moods";
 import { playlistActions, usePlaylists } from "../hooks/LOCAL/usePlaylists";
 import { confirmDialog } from "../lib/confirm";
+import BackButton from "../shared/BackButton";
 
 function MoodPicker({ value, onPick }: { value: MoodKey; onPick: (m: MoodKey) => void }) {
   return (
@@ -47,7 +48,10 @@ export default function Moods() {
 
   return (
     <div className="page-pad">
-      <h1 className="page-h1">Moods</h1>
+      <div className="page-head">
+        <BackButton />
+        <h1 className="page-h1">Moods</h1>
+      </div>
       <p className="page-text">Each playlist is a tab in your library. Tap the emoji to change its mood.</p>
 
       <ul className="mood-list">

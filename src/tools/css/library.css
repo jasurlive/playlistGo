@@ -121,6 +121,27 @@
   color: var(--muted);
 }
 
+/* sort chips on every library tab; scrolls sideways on narrow screens */
+.sort-bar {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 8px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.sort-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.sort-bar .chip {
+  flex-shrink: 0;
+  min-height: 32px;
+  padding: 0 0.75rem;
+  font-size: 0.8rem;
+}
+
 /* ---------- search ---------- */
 
 .search-page {
@@ -137,6 +158,18 @@
   gap: 10px;
   padding: 12px 12px 10px;
   background: var(--bg);
+}
+
+/* back button (the only way out when embedded without the navbar) + search box */
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.search-row .search {
+  flex: 1;
+  min-width: 0;
 }
 
 .search {

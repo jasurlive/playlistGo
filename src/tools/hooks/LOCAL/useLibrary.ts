@@ -10,11 +10,13 @@ export function useLibrary() {
 
   const csvIds = new Set(csv.map((s) => s.id))
   const fresh = saved.filter((s) => !csvIds.has(s.id))
-  const songs = applyOrder([...fresh, ...csv], fresh.length, order)
+  const recent = [...fresh, ...csv] // songs.csv gets new rows on top, so this is newest first
+  const songs = applyOrder(recent, fresh.length, order)
   const byId = new Map(songs.map((s) => [s.id, s]))
 
   return {
     songs,
+    recent,
     byId,
     loading,
     error,

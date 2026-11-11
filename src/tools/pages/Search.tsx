@@ -6,6 +6,7 @@ import { useYouTubeSearch } from "../hooks/GET/useYouTubeSearch";
 import { useSwipe } from "../hooks/LOCAL/useSwipe";
 import { getVideoId } from "../lib/youtube";
 import SongList from "../components/SongList";
+import BackButton from "../shared/BackButton";
 
 type Mode = "library" | "youtube";
 
@@ -53,39 +54,44 @@ export default function Search() {
   return (
     <div className="search-page">
       <header className="search-head">
-        <form
-          className="search"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (mode === "youtube") yt.search(q);
-            inputRef.current?.blur(); // hide the phone keyboard
-          }}
-        >
-          <FiSearch aria-hidden />
-          <input
-            ref={inputRef}
-            type="search"
-            value={q}
-            onChange={(e) => onType(e.target.value)}
-            placeholder={mode === "youtube" ? "Search YouTube or paste a link" : `Search ${library.songs.length} songs`}
-            enterKeyHint="search"
-            autoFocus
-            aria-label="Search"
-          />
-          {q && (
-            <button
-              type="button"
-              className="icon-btn"
-              onClick={() => {
-                setQ("");
-                inputRef.current?.focus();
-              }}
-              aria-label="Clear"
-            >
-              <FiX />
-            </button>
-          )}
-        </form>
+        <div className="search-row">
+          <BackButton />
+          <form
+            className="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (mode === "youtube") yt.search(q);
+              inputRef.current?.blur(); // hide the phone keyboard
+            }}
+          >
+            <FiSearch aria-hidden />
+            <input
+              ref={inputRef}
+              type="search"
+              value={q}
+              onChange={(e) => onType(e.target.value)}
+              placeholder={
+                mode === "youtube" ? "Search YouTube or paste a link" : `Search ${library.songs.length} songs`
+              }
+              enterKeyHint="search"
+              autoFocus
+              aria-label="Search"
+            />
+            {q && (
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={() => {
+                  setQ("");
+                  inputRef.current?.focus();
+                }}
+                aria-label="Clear"
+              >
+                <FiX />
+              </button>
+            )}
+          </form>
+        </div>
 
         <div className="seg" role="tablist" aria-label="Search in">
           <button type="button" role="tab" aria-selected={mode === "library"} onClick={() => setMode("library")}>

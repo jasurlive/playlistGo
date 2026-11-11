@@ -65,6 +65,23 @@ button:disabled {
   margin: 0 auto;
 }
 
+/* back arrow + page title */
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: -10px;
+}
+
+.back-btn {
+  color: var(--text-strong);
+  font-size: 1.4rem;
+}
+
+.search-row .back-btn {
+  margin-left: -6px;
+}
+
 .page-h1 {
   font-size: 1.6rem;
   font-weight: 800;
