@@ -6,6 +6,7 @@ import { usePlaylists } from "../hooks/LOCAL/usePlaylists";
 import { sourceLabel } from "../lib/sources";
 import QueueList from "../components/QueueList";
 import PlaylistSheet from "../components/PlaylistSheet";
+import BackButton from "../shared/BackButton";
 
 export default function Queue() {
   const player = usePlayer();
@@ -14,7 +15,10 @@ export default function Queue() {
 
   return (
     <div className="page-pad">
-      <h1 className="page-h1">Queue</h1>
+      <div className="page-head">
+        <BackButton />
+        <h1 className="page-h1">Queue</h1>
+      </div>
       <p className="page-text">
         {player.queue.length
           ? `${player.index + 1}/${player.queue.length} · from ${sourceLabel(player.source, playlists)}`

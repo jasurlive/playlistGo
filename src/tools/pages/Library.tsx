@@ -7,6 +7,7 @@ import { moodEmoji } from "../lib/moods";
 import { useLibrary } from "../hooks/LOCAL/useLibrary";
 import { playlistActions, usePlaylists } from "../hooks/LOCAL/usePlaylists";
 import { libraryOrderActions } from "../hooks/LOCAL/useLibraryOrder";
+import { SORTS, librarySortActions, sortSongs, useLibrarySort } from "../hooks/LOCAL/useLibrarySort";
 import { usePlayer } from "../hooks/LOCAL/usePlayer";
 import SongList from "../components/SongList";
 
@@ -14,6 +15,9 @@ type Tab = { id: string; label: string; emoji?: string; songs: Song[]; playlistI
 
 function TabPage({ tab, loading, error }: { tab: Tab; loading: boolean; error: string | null }) {
   const player = usePlayer();
+  const sort = useLibrarySort();
+  // drag & drop only makes sense on your own order
+  const reorderable = sort.mode === "personal";
 
   const shufflePlay = () => {
     if (!tab.songs.length) return;
@@ -29,6 +33,25 @@ function TabPage({ tab, loading, error }: { tab: Tab; loading: boolean; error: s
         <span className="shuffle-count">{tab.songs.length}</span>
       </button>
 
+      {tab.songs.length > 1 && (
+        <div className="sort-bar" role="radiogroup" aria-label="Sort songs">
+          {SORTS.map((s) => (
+            <button
+              key={s.mode}
+              type="button"
+              role="radio"
+              aria-checked={sort.mode === s.mode}
+              className={`chip ${sort.mode === s.mode ? "is-on" : ""}`}
+              onClick={() => librarySortActions.set(s.mode)}
+              title={s.mode === "shuffle" && sort.mode === "shuffle" ? "Shuffle again" : undefined}
+            >
+              {s.mode === "shuffle" && <FiShuffle />}
+              {s.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {loading && !tab.playlistId && <p className="list-empty">Loading songs…</p>}
       {error && !tab.playlistId && <p className="list-empty list-error">Couldn't load songs.csv: {error}</p>}
 
@@ -37,10 +60,13 @@ function TabPage({ tab, loading, error }: { tab: Tab; loading: boolean; error: s
         source={tab.playlistId ?? "all"}
         playlistId={tab.playlistId}
         // every tab can be reordered: playlists keep their own order, "All songs" a saved custom order
-        onReorder={(from, to) =>
-          tab.playlistId
-            ? playlistActions.moveSong(tab.playlistId, tab.songs[from].id, tab.songs[to].id)
-            : libraryOrderActions.move(tab.songs, from, to)
+        onReorder={
+          reorderable
+            ? (from, to) =>
+                tab.playlistId
+                  ? playlistActions.moveSong(tab.playlistId, tab.songs[from].id, tab.songs[to].id)
+                  : libraryOrderActions.move(tab.songs, from, to)
+            : undefined
         }
         empty={
           tab.playlistId && (
@@ -69,20 +95,29 @@ export default function Library() {
   const { id } = useParams();
   const navigate = useNavigate();
   const playlists = usePlaylists();
-  const { songs, byId, loading, error } = useLibrary();
+  const { songs, recent, byId, loading, error } = useLibrary();
+  const sort = useLibrarySort();
   const pagerRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const firstScroll = useRef(true);
 
   const tabs: Tab[] = [
-    { id: "all", label: "All songs", songs },
-    ...playlists.map((p) => ({
-      id: p.id,
-      label: p.name || "Untitled",
-      emoji: moodEmoji(p.mood),
-      playlistId: p.id,
-      songs: p.songIds.flatMap((sid) => byId.get(sid) ?? []),
-    })),
+    { id: "all", label: "All songs", songs: sortSongs(songs, recent, sort) },
+    ...playlists.map((p) => {
+      const ids = new Set(p.songIds);
+      return {
+        id: p.id,
+        label: p.name || "Untitled",
+        emoji: moodEmoji(p.mood),
+        playlistId: p.id,
+        // personal = the playlist's own order, newly added = when the song joined your library
+        songs: sortSongs(
+          p.songIds.flatMap((sid) => byId.get(sid) ?? []),
+          recent.filter((s) => ids.has(s.id)),
+          sort,
+        ),
+      };
+    }),
   ];
   const active = id ? tabs.findIndex((t) => t.id === id) : 0;
 

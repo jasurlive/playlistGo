@@ -5,6 +5,7 @@ import { confirmDialog } from "../lib/confirm";
 import { playlistActions } from "../hooks/LOCAL/usePlaylists";
 import { THEME_LABELS } from "../lib/themes";
 import { THEME_ICONS } from "../shared/ThemeIcons";
+import BackButton from "../shared/BackButton";
 
 const SHORTCUTS: [string, string][] = [
   ["K / 5", "Play / pause"],
@@ -25,7 +26,10 @@ export default function Settings() {
 
   return (
     <div className="page-pad">
-      <h1 className="page-h1">Settings</h1>
+      <div className="page-head">
+        <BackButton />
+        <h1 className="page-h1">Settings</h1>
+      </div>
 
       <h2 className="page-subtitle">Theme</h2>
       <div className="theme-picker" role="radiogroup" aria-label="Theme">
