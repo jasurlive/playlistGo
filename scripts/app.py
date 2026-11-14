@@ -92,7 +92,7 @@ def search_youtube(query, limit=15):
 
 
 def video_id(url):
-    """same rules as getVideoId in src/tools/lib/youtube.ts"""
+    """same rules as getVideoId in src/lib/youtube.ts"""
     u = urllib.parse.urlparse(url.strip())
     if "youtu.be" in u.netloc:
         return u.path.lstrip("/").split("/")[0] or None

@@ -3,7 +3,7 @@
 // (colors live in css/theme.css; index.html reads the same env var before paint)
 
 export const BASE_THEMES = ['light', 'dark'] as const
-export const EXTRA_THEMES = ['linen', 'fjord', 'moss', 'charcoal'] as const
+export const EXTRA_THEMES = ['linen', 'fjord', 'moss', 'charcoal', 'paper'] as const
 
 export type Theme = (typeof BASE_THEMES)[number] | (typeof EXTRA_THEMES)[number]
 
@@ -14,6 +14,7 @@ export const THEME_LABELS: Record<Theme, string> = {
   fjord: 'Fjord',
   moss: 'Moss',
   charcoal: 'Charcoal',
+  paper: 'Paper',
 }
 
 export const EXTRA_THEMES_ENABLED = import.meta.env.VITE_ENABLE_EXTRA_THEMES !== 'false'

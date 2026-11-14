@@ -1,0 +1,142 @@
+/* navbar from the django-react template (liquid glass sidebar / floating pill).
+   placed by the .app grid in ui.css instead of position: fixed, so the mini player
+   can sit between the page and the bar on phones */
+
+/* liquid glass: translucent + blurred background */
+.menu {
+  grid-area: nav;
+  z-index: 10;
+  display: flex;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 35%, transparent),
+    0 8px 30px rgb(0 0 0 / 0.12);
+}
+
+.menu-item,
+.menu-toggle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  padding: 0 17px;
+  color: inherit;
+  font-size: 22px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.menu-toggle {
+  flex-shrink: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.menu-item:hover,
+.menu-toggle:hover {
+  background: var(--hover);
+  color: var(--text-strong);
+}
+
+.menu-item.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 var(--accent);
+}
+
+.menu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.menu-label {
+  font-size: 16px;
+}
+
+.menu-collapsed .menu-label {
+  display: none;
+}
+
+.menu-collapsed .menu-item {
+  justify-content: center;
+  padding: 0;
+}
+
+/* attached sidebar with a glowing accent bar on desktop */
+@media (min-width: 769px) {
+  .menu {
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: none;
+    border-width: 0 1px 0 0;
+  }
+
+  .menu-item {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* first .menu-bottom item pushes itself and the rest to the bottom */
+  .menu-item:not(.menu-bottom) + .menu-bottom {
+    margin-top: auto;
+  }
+
+  .menu-item.active {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    box-shadow: none;
+  }
+
+  /* rounded accent bar with a soft glow */
+  .menu-item.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+  }
+}
+
+/* floating pill at the bottom on phones (under the mini player) */
+@media (max-width: 768px) {
+  .menu-desktop-only {
+    display: none;
+  }
+
+  .menu {
+    height: 58px;
+    margin: 8px 10px calc(10px + env(safe-area-inset-bottom));
+    flex-direction: row;
+    border-radius: 22px;
+  }
+
+  .menu-item {
+    flex: 1;
+    justify-content: center;
+    padding: 0;
+    height: 100%;
+    font-size: 21px;
+  }
+
+  .menu-item.active {
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    box-shadow: none;
+  }
+
+  .menu-label,
+  .menu-toggle {
+    display: none;
+  }
+}

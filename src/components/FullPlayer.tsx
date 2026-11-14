@@ -151,6 +151,13 @@ export default function FullPlayer() {
   });
   const { setHost } = player;
 
+  // "/" or "s": go to search and put the cursor in the box (also when already on /search)
+  const focusSearch = () => {
+    if (expanded) close();
+    navigate("/search");
+    requestAnimationFrame(() => document.querySelector<HTMLInputElement>(".search input")?.select());
+  };
+
   useShortcuts({
     k: player.toggle,
     "5": player.toggle,
@@ -158,9 +165,10 @@ export default function FullPlayer() {
     "6": player.next,
     n: player.next,
     p: player.prev,
-    s: player.toggleShuffle,
+    "shift+s": player.toggleShuffle,
     r: player.cycleRepeat,
-    "/": () => navigate("/search"),
+    "/": focusSearch,
+    s: focusSearch,
     escape: () => {
       if (videoFull) exitVideo();
       else if (expanded && queueOpen) setQueueOpen(false);

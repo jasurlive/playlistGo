@@ -19,7 +19,7 @@ button:disabled {
    phone:   page / mini player / bottom navbar (navbar is the very bottom)
    desktop: sidebar | page, mini player under the page */
 .app {
-  --menu-w: 220px;
+  --menu-w: 200px;
   --bar-h: 60px;
   display: grid;
   height: 100dvh;
@@ -30,7 +30,7 @@ button:disabled {
 }
 
 .app:has(.menu-collapsed) {
-  --menu-w: 64px;
+  --menu-w: 56px;
 }
 
 .app-main {
