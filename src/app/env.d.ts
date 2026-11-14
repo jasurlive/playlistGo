@@ -1,5 +1,5 @@
 interface ImportMetaEnv {
-  // "false" hides the extra themes (linen, fjord, moss, charcoal); anything else keeps them
+  // "false" hides the extra themes (linen, fjord, moss, charcoal, paper); anything else keeps them
   readonly VITE_ENABLE_EXTRA_THEMES?: string
 }
 

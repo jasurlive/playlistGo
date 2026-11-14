@@ -22,22 +22,23 @@ npm run dev          # http://localhost:1212
   - mini player: tap or swipe up to open, sideways to skip
   - full player: swipe down to close, sideways to skip, up for the play queue
   - sheets: drag down to close
-- **Keys**: `K`/`5` play-pause, `6`/`N` next, `4`/`P` prev, `S` shuffle, `R` repeat, `/` search, `Esc` close, `Ctrl+J` theme
+- **Keys**: `K`/`5` play-pause, `6`/`N` next, `4`/`P` prev, `Shift+S` shuffle, `R` repeat, `S`/`/` focus search, `Esc` close the player or go back, `Ctrl+J` theme, `` ` `` sidebar
 
 ```
-api/search.ts            vercel function: youtube search (key stays server side)
+api/                     vercel functions: search.ts (youtube, key stays server side), visit.ts (telegram ping)
 src/
-├── app/                 main.tsx, App.tsx (routes), env.d.ts
-└── tools/
-    ├── pages/           Library (tabs), Moods, Search, Queue, Settings, NotFound
-    ├── components/      Layout, PlayerProvider, MiniPlayer, FullPlayer, SongList/SongRow, QueueList,
-    │                    Sheet, SongActions, PlaylistSheet, ErrorBoundary
-    ├── shared/          Menu (sidebar / mobile tab bar), ThemeIcons
-    ├── hooks/GET/       useGetSongs (csv), useYouTubeSearch (/api/search)
-    ├── hooks/LOCAL/     usePlaylists, useSavedSongs, useLibrary, usePlayer, useProgress,
-    │                    useSwipe, useDragDismiss, useLongPress, useShortcuts, useTheme
-    ├── lib/             youtube, moods, sources, format, themes, types, playerContext
-    └── css/
+├── app/                 entry: main.tsx, App.tsx (routes), env.d.ts
+├── pages/               Library (tabs), Moods, Search, Queue, Settings, NotFound
+├── components/          Layout, PlayerProvider, MiniPlayer, FullPlayer, SongList/SongRow, QueueList,
+│                        Sheet, SongActions, PlaylistSheet, ConfirmDialog, ErrorBoundary
+├── shared/              Menu (sidebar / mobile tab bar), ThemeIcons, BackButton
+├── hooks/
+│   ├── GET/             useGetSongs (csv), useYouTubeSearch (/api/search)
+│   └── LOCAL/           usePlaylists, useSavedSongs, useLibrary, usePlayer, useProgress,
+│                        useSwipe, useDragDismiss, useLongPress, useShortcuts, useTheme, useFullscreen
+├── lib/                 youtube, moods, sources, format, themes, types, playerContext, embed,
+│                        trackVisit (one /api/visit ping per session)
+└── css/
 ```
 
 ## Managing songs (Python)

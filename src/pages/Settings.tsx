@@ -11,13 +11,14 @@ const SHORTCUTS: [string, string][] = [
   ["K / 5", "Play / pause"],
   ["6 / N", "Next song"],
   ["4 / P", "Previous song"],
-  ["S", "Shuffle on / off"],
+  ["Shift + S", "Shuffle on / off"],
   ["R", "Repeat: all → one → off"],
-  ["/", "Search"],
+  ["S or /", "Focus search"],
   ["Space", "Open / minimize the player"],
   ["F", "Video full screen (laptop)"],
-  ["Esc", "Close the player"],
+  ["Esc", "Close the player, or go back"],
   ["Ctrl + J", "Next theme"],
+  ["`", "Collapse / expand the sidebar"],
 ];
 
 export default function Settings() {
@@ -101,6 +102,13 @@ export default function Settings() {
       >
         Reset playlists
       </button>
+
+      <footer className="page-text app-footer">
+        © {new Date().getFullYear()} playlistGo by{" "}
+        <a href="https://jasurlive.uz" target="_blank" rel="noopener noreferrer">jasurlive.uz</a>
+        {" · "}Feedback:{" "}
+        <a href="https://t.me/jasurlive_bot" target="_blank" rel="noopener noreferrer">@jasurlive_bot</a>
+      </footer>
     </div>
   );
 }

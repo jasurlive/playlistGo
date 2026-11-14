@@ -10,7 +10,8 @@ export function useShortcuts(shortcuts: Shortcuts) {
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const el = e.target as HTMLElement
-      if (el.isContentEditable || TYPING.includes(el.tagName)) return
+      // while typing, letters must reach the field: only Esc still works as a shortcut
+      if ((el.isContentEditable || TYPING.includes(el.tagName)) && e.key !== 'Escape') return
 
       const combo = [
         (e.ctrlKey || e.metaKey) && 'ctrl',
