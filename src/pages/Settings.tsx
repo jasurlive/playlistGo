@@ -5,6 +5,8 @@ import { confirmDialog } from "../lib/confirm";
 import { playlistActions } from "../hooks/LOCAL/usePlaylists";
 import { THEME_LABELS, isDarkTheme } from "../lib/themes";
 import { THEME_ICONS } from "../shared/ThemeIcons";
+import { useCharacter } from "../hooks/LOCAL/useCharacter";
+import { CHARACTERS, CHARACTER_LABELS, characterSvg } from "../lib/characters";
 import BackButton from "../shared/BackButton";
 
 // global shortcuts (see Menu.tsx + useShortcuts): keep this in sync when you add one
@@ -23,6 +25,7 @@ const SHORTCUTS = [
 ];
 
 const TIPS = [
+  "Tap your music buddy in the full player to play or pause. It vibes along while music plays. Pick a different buddy under Music buddy.",
   "Swipe the library list sideways to switch between playlist tabs.",
   "Mini player: tap or swipe up to open, swipe left / right for next / previous.",
   "Full player: swipe down to close, sideways to skip, up for the play queue.",
@@ -34,6 +37,7 @@ const TIPS = [
 export default function Settings() {
   const { theme, setTheme, themes } = useTheme();
   const { supported, isFullscreen, toggleFullscreen } = useFullscreen();
+  const { character, setCharacter } = useCharacter();
 
   return (
     <div className="page-pad">
@@ -65,6 +69,25 @@ export default function Settings() {
               </button>
             ))}
           </div>
+        ))}
+      </div>
+
+      <h2 className="page-subtitle">Music buddy</h2>
+      <p className="page-text buddy-note">Lives on the Moods tab and is the play / pause button in the full player.</p>
+      {/* the picked buddy dances (is-playing) so you can see it move */}
+      <div className="buddy-picker" role="radiogroup" aria-label="Music buddy">
+        {CHARACTERS.map((c) => (
+          <button
+            key={c}
+            type="button"
+            role="radio"
+            aria-checked={c === character}
+            className={`page-button buddy-option ${c === character ? "is-active is-playing" : ""}`}
+            onClick={() => setCharacter(c)}
+          >
+            <span className="buddy-option-face" aria-hidden="true" dangerouslySetInnerHTML={{ __html: characterSvg(c, `set-${c}`) }} />
+            {CHARACTER_LABELS[c]}
+          </button>
         ))}
       </div>
 

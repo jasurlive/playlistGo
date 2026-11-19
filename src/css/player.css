@@ -444,6 +444,58 @@
   font-size: 2rem;
 }
 
+/* the music buddy play / pause button (lib/characters.ts): no accent disc, the buddy is the button */
+.fp-controls .ctl-buddy,
+.fp-controls .ctl-buddy:hover:not(:disabled) {
+  background: none;
+  box-shadow: none;
+  font-size: 66px;
+}
+
+.ctl-buddy .buddy-face {
+  display: inline-flex;
+  line-height: 0;
+  filter: drop-shadow(0 4px 10px rgb(0 0 0 / 0.25));
+  transition: transform 0.15s;
+}
+
+.ctl-buddy:hover:not(:disabled) .buddy-face {
+  transform: scale(1.06);
+}
+
+.ctl-buddy:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* small play / pause badge on the buddy's corner so it still reads as the play button */
+.buddy-state {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--bg-elev);
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg-elev);
+  font-size: 12px;
+}
+
+.buddy-hint {
+  margin-top: -0.25rem;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--muted);
+  animation: buddy-hint-in 0.4s ease-out;
+}
+
+@keyframes buddy-hint-in {
+  from { opacity: 0; transform: translateY(-4px); }
+}
+
 @media (min-width: 769px) {
   .fp-controls:has(.fp-desktop-only) {
     max-width: 500px;

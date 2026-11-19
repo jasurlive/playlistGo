@@ -123,6 +123,60 @@
   color: var(--danger);
 }
 
+/* music buddy picker: tiles with the animated character on top */
+.buddy-note {
+  margin-top: -0.4rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.buddy-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  max-width: 480px;
+  margin-bottom: 0.75rem;
+}
+
+.buddy-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.85rem 0.5rem 0.7rem;
+  border-radius: 14px;
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.buddy-option:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.buddy-option:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.buddy-option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.buddy-option.is-active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.buddy-option-face {
+  display: inline-flex;
+  line-height: 0;
+  font-size: 48px;
+}
+
 /* on/off switch row (fullscreen), same look as the django-react template */
 .settings-switch {
   display: flex;
