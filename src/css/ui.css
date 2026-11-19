@@ -90,13 +90,6 @@ button:disabled {
   color: var(--text-strong);
 }
 
-.touch-list {
-  display: grid;
-  gap: 0.3rem;
-  padding-left: 1.1rem;
-  list-style: disc;
-}
-
 .btn {
   display: inline-flex;
   align-items: center;

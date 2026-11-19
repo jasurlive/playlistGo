@@ -140,3 +140,9 @@
     display: none;
   }
 }
+
+/* inlined custom svg icons (svg/*.svg?raw): size like a react-icon */
+.svg-icon {
+  display: inline-flex;
+  line-height: 0;
+}
