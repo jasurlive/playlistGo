@@ -11,9 +11,19 @@ cp .env.example .env
 npm run dev          # http://localhost:1212
 ```
 
+| Script              | What                     |
+| ------------------- | ------------------------ |
+| `npm run dev`       | dev server               |
+| `npm run build`     | typecheck + build `dist/`|
+| `npm run preview`   | serve the build          |
+| `npm run lint`      | oxlint                   |
+| `npm run typecheck` | tsc only                 |
+
+## Features
+
 - **Songs**: `public/data/songs.csv` (`title,url`; `Artist - Title` is split into two lines) + songs you save from YouTube
 - **Search**: one box, two sources: *My songs* (instant) or *YouTube* (press Enter; pasted links work without a key). Swipe sideways to flip.
-- **YouTube API**: put `YOUTUBE_API_KEY` in `.env` (dev) and in the Vercel env (prod). The browser only talks to `/api/search` (`api/search.ts`), so the key is never public. 10 searches/min per IP, results cached for an hour.
+- **YouTube API**: the browser only talks to `/api/search` (`api/search.ts`), so the key is never public. 10 searches/min per IP, results cached for an hour.
 - **Mood playlists = library tabs**: name + mood emoji, saved in `localStorage`. Manage them in *Moods*.
 - **Touch**
   - library: swipe sideways between playlist tabs; hold a song (or tap ⋮) for play next / add to queue / add to playlist / save
@@ -22,26 +32,44 @@ npm run dev          # http://localhost:1212
   - sheets: drag down to close
 - **Keys**: `K`/`5` play-pause, `6`/`N` next, `4`/`P` prev, `Shift+S` shuffle, `R` repeat, `S`/`/` focus search, `Esc` close the player or go back, `Ctrl+J` theme, `` ` `` sidebar
 
+## Env
+
+| Var                                     | Used by          | What                                              |
+| --------------------------------------- | ---------------- | ------------------------------------------------- |
+| `YOUTUBE_API_KEY`                       | `api/search.ts`  | YouTube Data API v3 key (server only)             |
+| `APP_PY_YT_KEY`                         | `scripts/app.py` | optional, falls back to `YOUTUBE_API_KEY`         |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`| `api/visit.ts`   | optional, pings you on new visits                 |
+| `VITE_ENABLE_EXTRA_THEMES`              | client           | `false` keeps only light/dark                     |
+
+## Deploy
+
+Vercel: import the repo, add the env vars above, done. `api/` becomes serverless functions, `vercel.json` rewrites the rest to the SPA.
+
+## Structure
+
 ```
 api/                     vercel functions: search.ts (youtube, key stays server side), visit.ts (telegram ping)
+public/data/songs.csv    the song library
+scripts/                 python desktop tool for editing songs.csv
 src/
 ├── app/                 entry: main.tsx, App.tsx (routes), env.d.ts
 ├── pages/               Library (tabs), Moods, Search, Queue, Settings, NotFound
 ├── components/          Layout, PlayerProvider, MiniPlayer, FullPlayer, SongList/SongRow, QueueList,
-│                        Sheet, SongActions, PlaylistSheet, ConfirmDialog, ErrorBoundary
+│                        Sheet, DragHandle, SongActions, PlaylistSheet, ConfirmDialog, ErrorBoundary
 ├── shared/              Menu (sidebar / mobile tab bar), ThemeIcons, BackButton
 ├── hooks/
 │   ├── GET/             useGetSongs (csv), useYouTubeSearch (/api/search)
-│   └── LOCAL/           usePlaylists, useSavedSongs, useLibrary, usePlayer, useProgress,
-│                        useSwipe, useDragDismiss, useLongPress, useShortcuts, useTheme, useFullscreen
-├── lib/                 youtube, moods, sources, format, themes, types, playerContext, embed,
+│   └── LOCAL/           usePlaylists, useSavedSongs, useLibrary(+Order, +Sort), usePlayer, useProgress,
+│                        useSwipe, useDragDismiss, useDragReorder, useLongPress, useShortcuts,
+│                        useTheme, useFullscreen
+├── lib/                 youtube, moods, sources, format, themes, types, playerContext, embed, confirm,
 │                        trackVisit (one /api/visit ping per session)
 └── css/
 ```
 
 ## Managing songs (Python)
 
-`scripts/app.py` edits `public/data/songs.csv` (served at `/data/songs.csv` in production).
+`scripts/app.py` edits `public/data/songs.csv` (served at `/data/songs.csv` in production). Full guide: [scripts/README.md](scripts/README.md).
 
 ```bash
 python -m venv scripts/.venv && source scripts/.venv/bin/activate
@@ -49,6 +77,19 @@ pip install -r scripts/requirements.txt
 python scripts/app.py
 ```
 
-- Search YouTube (needs `APP_PY_YT_KEY` or `YOUTUBE_API_KEY` in `.env`) → select → **Add selected to top**
-- Drag or **Top / Up / Down** to reorder, double-click to edit, `Delete` to remove, `Ctrl+S` to save (asks to confirm)
+- Search YouTube → select → **Add selected to top**
+- Drag or **Top / Up / Down** to reorder, double-click to edit, `Delete` to remove, `Ctrl+S` to save
+- **Check embeds** finds dead / private / non-embeddable videos
 - Titles with commas are quoted (`"Hello, World",url`), so no need to strip them
+
+## Contributing
+
+1. Fork, branch off `main`
+2. `npm run lint && npm run build` should pass
+3. Small, focused PRs. Song suggestions welcome too: just edit `songs.csv`
+
+Bugs and ideas: [issues](https://github.com/jasurlive/playlistGo/issues).
+
+## License
+
+[Apache 2.0](LICENSE)
