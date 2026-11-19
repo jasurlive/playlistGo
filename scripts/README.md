@@ -28,7 +28,8 @@ python scripts/app.py
 | ------- | --------------------------------------------------------- |
 | Add     | Search → select results → **Add selected to top** (or double-click) |
 | Reorder | Drag, or **Top / Up / Down**                              |
-| Edit    | Double-click a song, or **Edit**                          |
+| Find    | `Ctrl+F`, then type in **filter my songs** (all words match, any order); `Esc` clears. Drag and Up/Down are off while filtering |
+| Edit    | Double-click a song, or **Edit**: change the title and the YouTube link in one dialog |
 | Delete  | `Delete` key, or **Delete**                               |
 | Check embeds | **Check embeds**: finds deleted, private, age-restricted, and non-embeddable videos, then **Remove all** or keep them marked red to review |
 | Save    | `Ctrl+S`, or **Save**, then confirm in the popup           |

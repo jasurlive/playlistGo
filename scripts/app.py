@@ -1,7 +1,7 @@
 """Minimal song manager for public/data/songs.csv (served at /data/songs.csv).
 
-Search youtube + add, drag to reorder, double-click to edit, Delete to remove,
-Check embeds to find dead/unembeddable videos, Ctrl+S to save.
+Search youtube + add, Ctrl+F to filter your songs, drag to reorder, double-click
+to edit, Delete to remove, Check embeds to find dead/unembeddable videos, Ctrl+S to save.
 
     python scripts/app.py
 """
@@ -20,8 +20,10 @@ from PyQt6.QtGui import QBrush, QColor, QKeySequence, QShortcut
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
     QHBoxLayout,
-    QInputDialog,
     QLabel,
     QLineEdit,
     QListWidget,
@@ -154,6 +156,43 @@ def make_item(title, url):
     return item
 
 
+class EditDialog(QDialog):
+    """title + link in one window; OK stays off until the link is a youtube video"""
+
+    def __init__(self, parent, title, url):
+        super().__init__(parent)
+        self.setWindowTitle("Edit song")
+        self.setMinimumWidth(520)
+        self.title = QLineEdit(title)
+        self.url = QLineEdit(url, placeholderText="https://www.youtube.com/watch?v=…")
+        self.hint = QLabel()
+        self.buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
+
+        form = QFormLayout(self)
+        form.addRow("Title:", self.title)
+        form.addRow("YouTube link:", self.url)
+        form.addRow("", self.hint)
+        form.addRow(self.buttons)
+
+        self.title.textChanged.connect(self.validate)
+        self.url.textChanged.connect(self.validate)
+        self.validate()
+        self.title.selectAll()
+
+    def values(self):
+        return clean(self.title.text()), clean(self.url.text())
+
+    def validate(self):
+        title, url = self.values()
+        vid = video_id(url) if url else None
+        self.hint.setText(f"video id: {vid}" if vid else "not a YouTube video link")
+        self.buttons.button(QDialogButtonBox.StandardButton.Ok).setEnabled(bool(title and vid))
+
+
 class App(QWidget):
     def __init__(self):
         super().__init__()
@@ -170,7 +209,10 @@ class App(QWidget):
         self.results.itemDoubleClicked.connect(lambda _: self.add())
         add_btn = QPushButton("Add selected to top", clicked=self.add)
 
-        # library
+        # library + local filter (hides non-matching rows, order is untouched)
+        self.filter = QLineEdit(placeholderText="filter my songs…  (Ctrl+F, Esc clears)")
+        self.filter.setClearButtonEnabled(True)
+        self.filter.textChanged.connect(lambda _: self.apply_filter())
         self.songs = QListWidget()
         self.songs.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.songs.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
@@ -183,6 +225,7 @@ class App(QWidget):
         row.addWidget(search_btn)
 
         buttons = QHBoxLayout()
+        self.move_btns = []
         for text, fn in [
             ("Top", self.to_top),
             ("Up", lambda: self.shift(-1)),
@@ -193,18 +236,24 @@ class App(QWidget):
             ("Reload", self.load),
             ("Save", self.save),
         ]:
-            buttons.addWidget(QPushButton(text, clicked=fn))
+            btn = QPushButton(text, clicked=fn)
+            buttons.addWidget(btn)
+            if text in ("Up", "Down"):
+                self.move_btns.append(btn)
 
         layout = QVBoxLayout(self)
         layout.addLayout(row)
         layout.addWidget(self.results)
         layout.addWidget(add_btn)
+        layout.addWidget(self.filter)
         layout.addWidget(self.songs, 1)
         layout.addLayout(buttons)
         layout.addWidget(self.status)
 
         QShortcut(QKeySequence.StandardKey.Save, self, self.save)
         QShortcut(QKeySequence.StandardKey.Delete, self.songs, self.delete)
+        QShortcut(QKeySequence.StandardKey.Find, self, self.focus_filter)
+        QShortcut(QKeySequence(Qt.Key.Key_Escape), self.filter, self.filter.clear)
 
         self.load()
 
@@ -217,6 +266,33 @@ class App(QWidget):
         mark = "* " if self.dirty else ""
         self.setWindowTitle(f"{mark}Songs ({self.songs.count()}) — {CSV_FILE.name}")
         self.status.setText(msg)
+        self.apply_filter(quiet=bool(msg))
+
+    # filter
+    def focus_filter(self):
+        self.filter.setFocus()
+        self.filter.selectAll()
+
+    def apply_filter(self, quiet=False):
+        """every word must appear in the title or link, any order, case-insensitive"""
+        words = self.filter.text().lower().split()
+        shown = 0
+        for i in range(self.songs.count()):
+            item = self.songs.item(i)
+            text = f"{item.text()} {item.data(URL)}".lower()
+            hide = not all(w in text for w in words)
+            item.setHidden(hide)
+            if hide:
+                item.setSelected(False)  # don't delete/move songs you can't see
+            else:
+                shown += 1
+        # reordering a filtered view would shuffle hidden songs around, so only Top stays on
+        mode = QAbstractItemView.DragDropMode
+        self.songs.setDragDropMode(mode.NoDragDrop if words else mode.InternalMove)
+        for btn in self.move_btns:
+            btn.setEnabled(not words)
+        if not quiet:
+            self.status.setText(f"{shown} of {self.songs.count()} songs match" if words else "")
 
     def load(self):
         if self.dirty and not self.confirm("Discard unsaved changes?"):
@@ -266,15 +342,20 @@ class App(QWidget):
     def edit(self, item):
         if not item:
             return
-        title, ok = QInputDialog.getText(self, "Edit title", "Title:", text=item.text())
-        if not ok:
+        dialog = EditDialog(self, item.text(), item.data(URL))
+        if dialog.exec() != QDialog.DialogCode.Accepted:
             return
-        url, ok = QInputDialog.getText(self, "Edit link", "YouTube link:", text=item.data(URL))
-        if ok and clean(title) and clean(url):
-            item.setText(clean(title))
-            item.setData(URL, clean(url))
-            item.setToolTip(clean(url))
-            self.touch("edited")
+        title, url = dialog.values()
+        if (title, url) == (item.text(), item.data(URL)):
+            return
+        others = {self.songs.item(i).data(URL) for i in range(self.songs.count())} - {item.data(URL)}
+        if url in others and not self.confirm("Another song already uses this link. Keep both?"):
+            return
+        item.setText(title)
+        item.setData(URL, url)
+        item.setToolTip(url)
+        item.setBackground(QBrush())  # a new link clears an old "Check embeds" mark
+        self.touch("edited")
 
     def delete(self):
         picked = self.songs.selectedItems()
@@ -337,6 +418,8 @@ class App(QWidget):
             self.touch()
 
     def shift(self, step):
+        if self.filter.text().strip():
+            return
         rows = self.selected_rows()
         if not rows or rows[0] + step < 0 or rows[-1] + step >= self.songs.count():
             return
