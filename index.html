@@ -18,8 +18,11 @@
       try {
         // %VITE_ENABLE_EXTRA_THEMES% is filled in by Vite from .env
         var themes = ['light', 'dark']
-        if ('%VITE_ENABLE_EXTRA_THEMES%' !== 'false') themes.push('linen', 'fjord', 'moss', 'charcoal', 'paper')
+        if ('%VITE_ENABLE_EXTRA_THEMES%' !== 'false') themes.push('linen', 'matte', 'sage', 'hygge', 'spruce', 'fjord')
         var saved = localStorage.getItem('theme')
+        // themes removed in the template sync -> closest replacement
+        var renamed = { charcoal: 'dark', moss: 'spruce', paper: 'light' }
+        if (renamed[saved]) saved = renamed[saved]
         document.documentElement.dataset.theme =
           themes.indexOf(saved) !== -1
             ? saved

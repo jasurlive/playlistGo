@@ -7,11 +7,13 @@ import {
   FiMusic,
   FiSearch,
   FiSettings,
-  FiSmile,
 } from "react-icons/fi";
 import "../css/menu.css";
 import { useTheme } from "../hooks/LOCAL/useTheme";
 import { useShortcuts } from "../hooks/LOCAL/useShortcuts";
+import { usePlayer } from "../hooks/LOCAL/usePlayer";
+import { useCharacter } from "../hooks/LOCAL/useCharacter";
+import { characterSvg } from "../lib/characters";
 
 // same navbar as the django-react template (shared/Menu.tsx), with playlistGo's pages
 export type MenuItem = {
@@ -32,7 +34,7 @@ export default function Menu({
       mobile: true,
       match: (p) => p === "/" || p.startsWith("/p/"), // playlist tabs live in the library
     },
-    { label: "Moods", icon: <FiSmile />, href: "/moods", mobile: true },
+    { label: "Moods", icon: <BuddyIcon />, href: "/moods", mobile: true },
     { label: "Search", icon: <FiSearch />, href: "/search", mobile: true },
     { label: "Queue", icon: <FiList />, href: "/queue", mobile: true },
     { label: "Settings", icon: <FiSettings />, href: "/settings", mobile: true, bottom: true },
@@ -40,6 +42,7 @@ export default function Menu({
 }: {
   items?: MenuItem[];
 }) {
+  const { playing } = usePlayer();
   const { toggleTheme } = useTheme();
   const { pathname } = useLocation();
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem("menu-collapsed") !== "false");
@@ -55,7 +58,8 @@ export default function Menu({
   useShortcuts({ "ctrl+j": toggleTheme, "`": toggleMenu });
 
   return (
-    <nav className={`menu ${collapsed ? "menu-collapsed" : ""}`} aria-label="Main">
+    // .is-playing: the Moods buddy bobs + sings only while music plays
+    <nav className={`menu ${collapsed ? "menu-collapsed" : ""} ${playing ? "is-playing" : ""}`} aria-label="Main">
       <button
         type="button"
         className="menu-toggle"
@@ -90,4 +94,10 @@ export default function Menu({
       })}
     </nav>
   );
+}
+
+// the music buddy picked in Settings (inlined so its css animation runs)
+function BuddyIcon() {
+  const { character } = useCharacter();
+  return <span className="svg-icon" dangerouslySetInnerHTML={{ __html: characterSvg(character, "menu") }} />;
 }
