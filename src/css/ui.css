@@ -51,6 +51,33 @@ button:disabled {
   }
 }
 
+/* phones: the page runs under the mini player + navbar pill, so items show through the
+   glass pill instead of a blank strip. --dock-h = how much of the page the dock covers,
+   added as bottom padding so the last items can still scroll clear of it */
+@media (max-width: 768px) {
+  .app:not(.app-embed) {
+    --dock-h: calc(76px + env(safe-area-inset-bottom)); /* pill 58 + its 8 / 10 margins */
+  }
+
+  .app:not(.app-embed):has(.mini:not(.mini-empty)) {
+    --dock-h: calc(142px + env(safe-area-inset-bottom)); /* + mini player 64 + its 2 borders */
+  }
+
+  .app:not(.app-embed) .app-main {
+    grid-row: 1 / -1;
+    padding-bottom: var(--dock-h);
+  }
+
+  /* the library scrolls inside its tabs, so the padding goes there instead */
+  .app:not(.app-embed) .app-main:has(.library) {
+    padding-bottom: 0;
+  }
+
+  .app:not(.app-embed) .pager-page {
+    padding-bottom: var(--dock-h);
+  }
+}
+
 /* /myplayer (iframe embed): no navbar, page + mini player only, on every screen size */
 .app.app-embed {
   grid-template-rows: minmax(0, 1fr) auto;

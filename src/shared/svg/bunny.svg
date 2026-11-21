@@ -3,13 +3,11 @@
        Still when paused; animates only inside .is-playing. viewBox is cropped tight so it fills 1em like a react-icon -->
   <style>
     .pg-smile .pg-bob { transform-origin: 12px 21px; }
-    .pg-smile .pg-tilt { transform-origin: 12px 19px; }
     .pg-smile .pg-open { transform-origin: 12px 16px; transform: scaleY(0); }
     .pg-smile .pg-eyes { transform-origin: 12px 14px; }
     .pg-smile .pg-happy { opacity: 0; }
     .pg-smile .pg-float { opacity: 0; }
-    .is-playing .pg-smile .pg-bob { animation: pg-smile-bob 1.4s ease-in-out infinite; }
-    .is-playing .pg-smile .pg-tilt { animation: pg-smile-tilt 28s ease-in-out infinite; }
+    .is-playing .pg-smile .pg-bob { animation: pg-smile-bob 7s ease-in-out infinite; }
     .is-playing .pg-smile .pg-open { animation: pg-smile-sing 28s linear infinite; }
     .is-playing .pg-smile .pg-eyes { animation: pg-smile-blink 28s linear infinite, pg-smile-awake 28s linear infinite; }
     .is-playing .pg-smile .pg-happy { animation: pg-smile-happy 28s linear infinite; }
@@ -33,19 +31,12 @@
       32% { opacity: 0; transform: translate(1.6px, -6.5px) scale(1) rotate(12deg); }
       100% { opacity: 0; transform: translate(1.6px, -6.5px) scale(1); }
     }
-    /* soft sway: lean, dip on the beat, lean the other way */
+    /* the old slight lean left / right (same 3deg, same pace), no up / down dip:
+       sways ~2.8s, then eases back to center and holds still ~4.2s so it never gets busy */
     @keyframes pg-smile-bob {
-      0%, 100% { transform: rotate(-3deg); }
-      25%, 75% { transform: translateY(0.5px); }
-      50% { transform: rotate(3deg); }
-    }
-    @keyframes pg-smile-tilt {
-      0% { transform: rotate(0deg); }
-      36.43% { transform: rotate(0deg); }
-      38.21% { transform: rotate(-11deg); }
-      42.5% { transform: rotate(-11deg); }
-      44.64% { transform: rotate(0deg); }
-      100% { transform: rotate(0deg); }
+      0%, 40%, 100% { transform: rotate(0); }
+      5%, 25% { transform: rotate(-3deg); }
+      15%, 35% { transform: rotate(3deg); }
     }
     @keyframes pg-smile-sing {
       0% { transform: scaleY(0); }
@@ -118,7 +109,7 @@
       <stop offset="1" stop-color="#f6d6dd" />
     </radialGradient>
   </defs>
-  <g class="pg-bob"><g class="pg-tilt">
+  <g class="pg-bob">
     <ellipse cx="8.4" cy="5.9" rx="2" ry="3.9" transform="rotate(-10 8.4 5.9)" fill="url(#pg-fur-bunny)" stroke="#c08a96" stroke-width=".7" /><ellipse cx="15.6" cy="5.9" rx="2" ry="3.9" transform="rotate(10 15.6 5.9)" fill="url(#pg-fur-bunny)" stroke="#c08a96" stroke-width=".7" /><ellipse cx="8.4" cy="6.2" rx=".9" ry="2.7" transform="rotate(-10 8.4 6.2)" fill="#ffb3c8" /><ellipse cx="15.6" cy="6.2" rx=".9" ry="2.7" transform="rotate(10 15.6 6.2)" fill="#ffb3c8" />
     <ellipse cx="12" cy="14.2" rx="8.9" ry="7.1" fill="url(#pg-fur-bunny)" stroke="#c08a96" stroke-width=".7" />
     
@@ -140,7 +131,7 @@
     <rect x="1.4" y="11.6" width="3.6" height="5.8" rx="1.8" fill="#e6b8ff" stroke="#9a6fb0" stroke-width=".7" />
     <rect x="19" y="11.6" width="3.6" height="5.8" rx="1.8" fill="#e6b8ff" stroke="#9a6fb0" stroke-width=".7" />
     <path d="M4.4 12.6v3.8M19.6 12.6v3.8" stroke="#f5e3ff" stroke-width=".7" />
-  </g></g>
+  </g>
   <g transform="translate(2.4 9.6)"><path class="pg-float pg-float-l" d="M-.2 .6a.95.7-20 1 1 1.1-.4V-3.2q1.3.4 1.4 1.7-.6-.7-1.4-.8" fill="#9a6fb0" stroke="#9a6fb0" stroke-width=".5" /></g>
   <g transform="translate(21.6 9.6)"><path class="pg-float pg-float-r pg-d1" d="M0 1.3C-1.7 0-1.7-1.5-.85-1.5-.35-1.5 0-1.1 0-.75 0-1.1.35-1.5.85-1.5 1.7-1.5 1.7 0 0 1.3z" fill="#ff6f9c" /></g>
   <g transform="translate(21.4 9.6)"><path class="pg-float pg-float-r pg-d2" d="M-.2 .6a.95.7-20 1 1 1.1-.4V-3.2q1.3.4 1.4 1.7-.6-.7-1.4-.8" fill="#9a6fb0" stroke="#9a6fb0" stroke-width=".5" /></g>

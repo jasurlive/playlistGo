@@ -1,20 +1,38 @@
 import { useSyncExternalStore } from 'react'
-import { isCharacter, type Character } from '../../lib/characters'
+import { CHARACTERS, isCharacter, type Character } from '../../lib/characters'
 
-// one shared store so the menu, the full player and the settings picker stay in sync
+// what Settings saved: one buddy, or 'shuffle' = a random buddy on each visit
+export type BuddyChoice = Character | 'shuffle'
+
+// one shared store so the menu and the settings picker stay in sync
 const listeners = new Set<() => void>()
 
-const getCharacter = (): Character => {
-  try {
-    const saved = localStorage.getItem('character')
-    if (isCharacter(saved)) return saved
-  } catch {}
-  return 'cat'
+const randomBuddy = (not?: Character): Character => {
+  const pool = CHARACTERS.filter((c) => c !== not)
+  return pool[Math.floor(Math.random() * pool.length)]
 }
 
-const setCharacter = (character: Character) => {
+// rolled once per page load, so the buddy stays the same for the whole visit
+let visitBuddy = randomBuddy()
+
+const getChoice = (): BuddyChoice => {
   try {
-    localStorage.setItem('character', character)
+    const saved = localStorage.getItem('character')
+    if (saved === 'shuffle' || isCharacter(saved)) return saved
+  } catch {}
+  return 'shuffle' // the default: a new buddy each visit
+}
+
+const getCharacter = (): Character => {
+  const choice = getChoice()
+  return choice === 'shuffle' ? visitBuddy : choice
+}
+
+const setChoice = (choice: BuddyChoice) => {
+  // turning shuffle on rolls a fresh buddy right away, so you see it change
+  if (choice === 'shuffle') visitBuddy = randomBuddy(getCharacter())
+  try {
+    localStorage.setItem('character', choice)
   } catch {}
   listeners.forEach((l) => l())
 }
@@ -25,6 +43,7 @@ const subscribe = (listener: () => void) => {
 }
 
 export function useCharacter() {
+  const choice = useSyncExternalStore(subscribe, getChoice)
   const character = useSyncExternalStore(subscribe, getCharacter)
-  return { character, setCharacter }
+  return { character, choice, setChoice }
 }
