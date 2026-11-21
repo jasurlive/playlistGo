@@ -25,8 +25,6 @@ import { bigThumbnail } from "../lib/youtube";
 import { formatTime } from "../lib/format";
 import { sourceLabel } from "../lib/sources";
 import QueueList from "./QueueList";
-import { useCharacter } from "../hooks/LOCAL/useCharacter";
-import { CHARACTER_LABELS, characterSvg } from "../lib/characters";
 import PlaylistSheet from "./PlaylistSheet";
 
 function Progress({ live }: { live: boolean }) {
@@ -79,17 +77,6 @@ export default function FullPlayer() {
   const { current, playing, shuffle, repeat, expanded, queue, index } = player;
   const [queueOpen, setQueueOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  // the music buddy (picked in Settings) is the play / pause button
-  const { character } = useCharacter();
-  const buddy = CHARACTER_LABELS[character].toLowerCase();
-  // "tap the buddy" hint under the controls, until the first tap
-  const [buddyHintSeen, setBuddyHintSeen] = useState(() => {
-    try {
-      return localStorage.getItem("buddy-hint-seen") === "1";
-    } catch {
-      return false;
-    }
-  });
 
   // laptop: left toggle = whole website fullscreen, right toggle = video fills the screen.
   // video mode is just css on the same box: the iframe is never moved or reloaded,
@@ -297,25 +284,15 @@ export default function FullPlayer() {
           <button type="button" className="ctl" onClick={player.prev} disabled={!current} title="Previous (4)">
             <FiSkipBack />
           </button>
-          {/* the music buddy is the play / pause button: it vibes while music plays */}
           <button
             type="button"
-            className={`ctl ctl-main ctl-buddy ${playing ? "is-playing" : ""}`}
-            onClick={() => {
-              player.toggle();
-              if (!buddyHintSeen) {
-                setBuddyHintSeen(true);
-                try {
-                  localStorage.setItem("buddy-hint-seen", "1");
-                } catch {}
-              }
-            }}
+            className="ctl ctl-main"
+            onClick={player.toggle}
             disabled={!current}
-            aria-label={playing ? `Pause (tap the ${buddy})` : `Play (tap the ${buddy})`}
-            title={`Tap the ${buddy} to play / pause (K)`}
+            aria-label={playing ? "Pause" : "Play"}
+            title="Play / pause (K)"
           >
-            <span className="buddy-face" aria-hidden="true" dangerouslySetInnerHTML={{ __html: characterSvg(character, "fp") }} />
-            <span className="buddy-state" aria-hidden="true">{playing ? <FiPause /> : <FiPlay />}</span>
+            {playing ? <FiPause /> : <FiPlay />}
           </button>
           <button type="button" className="ctl" onClick={player.next} disabled={!current} title="Next (6)">
             <FiSkipForward />
@@ -342,8 +319,6 @@ export default function FullPlayer() {
         </div>
 
         {/* phones: the full screen toggles sit on both sides of the song counter */}
-        {!buddyHintSeen && current && <p className="buddy-hint">Tap the {buddy} to play / pause</p>}
-
         <div className="fp-count-row">
           {page.supported ? (
             <button

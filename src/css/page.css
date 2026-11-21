@@ -177,6 +177,15 @@
   font-size: 48px;
 }
 
+/* the Shuffle tile: a stroke icon, sized to sit level with the buddies */
+.buddy-option-shuffle {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  font-size: 30px;
+}
+
 /* on/off switch row (fullscreen), same look as the django-react template */
 .settings-switch {
   display: flex;

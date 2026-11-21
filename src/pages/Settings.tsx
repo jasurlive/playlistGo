@@ -1,4 +1,4 @@
-import { FiMaximize, FiMinimize } from "react-icons/fi";
+import { FiMaximize, FiMinimize, FiShuffle } from "react-icons/fi";
 import { useTheme } from "../hooks/LOCAL/useTheme";
 import { useFullscreen } from "../hooks/LOCAL/useFullscreen";
 import { confirmDialog } from "../lib/confirm";
@@ -25,7 +25,7 @@ const SHORTCUTS = [
 ];
 
 const TIPS = [
-  "Tap your music buddy in the full player to play or pause. It vibes along while music plays. Pick a different buddy under Music buddy.",
+  "Your music buddy on the Moods tab vibes along while music plays. Pick a different one under Music buddy.",
   "Swipe the library list sideways to switch between playlist tabs.",
   "Mini player: tap or swipe up to open, swipe left / right for next / previous.",
   "Full player: swipe down to close, sideways to skip, up for the play queue.",
@@ -37,7 +37,7 @@ const TIPS = [
 export default function Settings() {
   const { theme, setTheme, themes } = useTheme();
   const { supported, isFullscreen, toggleFullscreen } = useFullscreen();
-  const { character, setCharacter } = useCharacter();
+  const { character, choice, setChoice } = useCharacter();
 
   return (
     <div className="page-pad">
@@ -73,17 +73,31 @@ export default function Settings() {
       </div>
 
       <h2 className="page-subtitle">Music buddy</h2>
-      <p className="page-text buddy-note">Lives on the Moods tab and is the play / pause button in the full player.</p>
+      <p className="page-text buddy-note">Lives on the Moods tab in the menu and vibes along while music plays.</p>
       {/* the picked buddy dances (is-playing) so you can see it move */}
       <div className="buddy-picker" role="radiogroup" aria-label="Music buddy">
+        {/* shuffle: a different random buddy on each visit (the default) */}
+        <button
+          type="button"
+          role="radio"
+          aria-checked={choice === "shuffle"}
+          className={`page-button buddy-option ${choice === "shuffle" ? "is-active" : ""}`}
+          onClick={() => setChoice("shuffle")}
+          title={choice === "shuffle" ? `This visit: ${CHARACTER_LABELS[character]}` : "A random buddy on each visit"}
+        >
+          <span className="buddy-option-face buddy-option-shuffle" aria-hidden="true">
+            <FiShuffle />
+          </span>
+          Shuffle
+        </button>
         {CHARACTERS.map((c) => (
           <button
             key={c}
             type="button"
             role="radio"
-            aria-checked={c === character}
-            className={`page-button buddy-option ${c === character ? "is-active is-playing" : ""}`}
-            onClick={() => setCharacter(c)}
+            aria-checked={c === choice}
+            className={`page-button buddy-option ${c === choice ? "is-active is-playing" : ""}`}
+            onClick={() => setChoice(c)}
           >
             <span className="buddy-option-face" aria-hidden="true" dangerouslySetInnerHTML={{ __html: characterSvg(c, `set-${c}`) }} />
             {CHARACTER_LABELS[c]}
